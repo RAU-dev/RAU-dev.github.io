@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAU.dev — Python Automation & AI Tooling Developer</title>
+<meta name="description" content="Python & Bash automation, AI tooling, and Android development. Based in Lahore, Pakistan.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070910; --bg-2:#0a0d16; --card:#0c1120; --border:#1a2236; --border-soft:#141b2c;
+  --blue:#3b82f6; --blue-light:#60a5fa; --cyan:#22d3ee;
+  --text:#f1f3f8; --text-dim:#8b95ac; --text-faint:#4d5670;
+  --green:#34d399; --amber:#fbbf24; --red:#f87171;
+  --display:'Sora',sans-serif; --body:'Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  background-image:linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
+  background-size:28px 28px; color:var(--text); font-family:var(--body); line-height:1.65; min-height:100vh;
+}
+@media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important;} }
+.wrap{max-width:980px;margin:0 auto;padding:0 24px;}
+nav{ position:sticky; top:0; z-index:50; background:rgba(7,9,16,0.88); backdrop-filter:blur(12px); border-bottom:1px solid var(--border-soft); }
+.nav-inner{ max-width:980px;margin:0 auto;padding:16px 24px; display:flex; align-items:center; justify-content:space-between; }
+.logo{font-family:var(--display); font-weight:600; font-size:17px; letter-spacing:-0.4px; text-decoration:none; color:var(--text); cursor:pointer;}
+.logo span{color:var(--blue-light);}
+.nav-links{display:flex; gap:26px; align-items:center;}
+.nav-links a{color:var(--text-dim); text-decoration:none; font-size:13.5px; font-weight:500; transition:color .15s; cursor:pointer;}
+.nav-links a:hover, .nav-links a.active{color:var(--text);}
+.nav-actions{display:flex; gap:10px; align-items:center;}
+@media (max-width:680px){ .nav-links{display:none;} }
+.btn{ font-family:var(--body); font-weight:500; font-size:13px; padding:9px 16px; border-radius:6px; border:none; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px; transition:transform .15s, background .15s, border-color .15s, color .15s; }
+.btn-primary{ background:var(--blue); color:#070910; font-weight:600; }
+.btn-primary:hover{ background:var(--blue-light); }
+.btn-ghost{ background:transparent; border:1px solid var(--border); color:var(--text-dim); }
+.btn-ghost:hover{ border-color:var(--blue); color:var(--text); }
+.btn-sm{ padding:7px 13px; font-size:12px; }
+.btn-danger{ background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.3); color:var(--red); }
+.page{ display:none; }
+.page.active{ display:block; }
+.page-head{ padding:56px 0 40px; }
+.eyebrow{ font-family:var(--mono); font-size:11.5px; color:var(--blue-light); letter-spacing:1.5px; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+.eyebrow .dot{ width:6px; height:6px; border-radius:50%; background:var(--green); }
+.page-title{ font-family:var(--display); font-weight:600; font-size:clamp(28px,4.5vw,42px); letter-spacing:-1px; line-height:1.1; }
+.page-sub{ margin-top:14px; color:var(--text-dim); font-size:15.5px; max-width:560px; }
+section{ margin-top:64px; padding-bottom:8px; }
+.sec-head{ display:flex; align-items:baseline; gap:12px; margin-bottom:24px; }
+.sec-num{ font-family:var(--mono); font-size:12px; color:var(--blue-light); }
+.sec-title{ font-family:var(--display); font-weight:600; font-size:21px; letter-spacing:-0.4px; }
+.sec-rule{ flex:1; height:1px; background:linear-gradient(90deg, var(--border), transparent); }
+.card{ background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; transition:border-color .2s; }
+.card:hover{ border-color:#232c40; }
+.hero{ padding:70px 0 50px; display:grid; grid-template-columns:1fr 240px; gap:44px; align-items:center; }
+@media (max-width:760px){ .hero{ grid-template-columns:1fr; padding-top:50px; } .hero-photo{order:-1; margin:0 auto;} }
+.hero-title{ font-family:var(--display); font-weight:700; letter-spacing:-1.3px; font-size:clamp(32px,5vw,48px); line-height:1.08; }
+.hero-cta{ margin-top:26px; display:flex; gap:12px; flex-wrap:wrap; }
+.hero-photo{ position:relative; width:220px; height:260px; border-radius:14px; overflow:hidden; border:1px solid var(--border); background:var(--card); }
+.hero-photo img{ width:100%; height:100%; object-fit:cover; object-position:top center; filter:grayscale(0.25) contrast(1.1) brightness(0.92); }
+.hero-photo::after{ content:''; position:absolute; inset:0; background:linear-gradient(160deg, rgba(59,130,246,0.2), transparent 55%, rgba(34,211,238,0.1)); mix-blend-mode:overlay; }
+.hero-photo::before{ content:''; position:absolute; inset:0; border-radius:14px; box-shadow:inset 0 0 0 1px rgba(59,130,246,0.25); z-index:2; }
+.photo-edit-btn{ position:absolute; bottom:8px; right:8px; z-index:3; background:rgba(7,9,16,0.85); border:1px solid var(--blue); color:var(--blue-light); font-family:var(--body); font-size:11px; padding:5px 10px; border-radius:6px; cursor:pointer; }
+.data-row{ display:flex; gap:28px; flex-wrap:wrap; border-top:1px solid var(--border-soft); padding-top:18px; margin-top:24px; }
+.data-row .label{ font-family:var(--mono); font-size:10px; color:var(--text-faint); letter-spacing:1px; margin-bottom:4px; }
+.data-row .val{ font-size:13px; color:#c7cee0; }
+#skillsGrid, #skillsGridAbout{ display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px; }
+.skill-chip{ background:var(--card); border:1px solid var(--border); border-radius:9px; padding:13px 15px; font-size:13px; font-weight:500; color:var(--text); display:flex; align-items:center; gap:9px; transition:border-color .2s; }
+.skill-chip:hover{ border-color:var(--blue); }
+.skill-chip .ico{ width:6px; height:6px; border-radius:2px; background:var(--blue-light); flex-shrink:0; }
+.proj-card{ position:relative; }
+.proj-card::before{ content:''; position:absolute; top:0; left:0; width:2px; height:100%; background:var(--blue); }
+.proj-head{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:space-between; }
+.proj-name-wrap{ display:flex; align-items:center; gap:10px; }
+.proj-name{ font-family:var(--display); font-weight:600; font-size:16px; }
+.proj-tag{ font-family:var(--mono); font-size:10.5px; padding:3px 9px; border-radius:100px; }
+.tag-shipped{ color:var(--green); border:1px solid rgba(52,211,153,0.3); background:rgba(52,211,153,0.08); }
+.tag-progress{ color:var(--amber); border:1px solid rgba(251,191,36,0.3); background:rgba(251,191,36,0.08); }
+.tag-learning{ color:var(--blue-light); border:1px solid rgba(59,130,246,0.3); background:rgba(59,130,246,0.08); }
+.proj-desc{ margin-top:10px; color:var(--text-dim); font-size:14px; max-width:640px; }
+.proj-stack{ margin-top:10px; font-family:var(--mono); font-size:11px; color:var(--text-faint); }
+.about-block{ margin-bottom:16px; }
+.about-block h3{ font-family:var(--display); font-size:15px; font-weight:600; color:var(--blue-light); margin-bottom:8px; }
+.about-block p{ color:var(--text-dim); font-size:14.5px; max-width:680px; }
+.rate-strip{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:22px 26px; }
+.rate-strip .label{ font-family:var(--mono); font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:1px; }
+.rate-strip .val{ font-family:var(--display); font-weight:700; font-size:20px; color:var(--blue-light); margin-top:4px; }
+.overlay{ position:fixed; inset:0; background:rgba(2,3,8,0.78); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; z-index:100; padding:20px; }
+.overlay.show{ display:flex; }
+.modal{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:30px; width:100%; max-width:380px; position:relative; }
+.modal-close{ position:absolute; top:14px; right:14px; background:none; border:none; color:var(--text-faint); font-size:20px; cursor:pointer; }
+.tabs{ display:flex; gap:6px; background:var(--bg-2); border-radius:9px; padding:4px; margin-bottom:20px; }
+.tab-btn{ flex:1; padding:9px; border:none; background:transparent; color:var(--text-dim); font-family:var(--body); font-weight:600; font-size:13px; border-radius:6px; cursor:pointer; transition:.15s; }
+.tab-btn.active{ background:var(--blue); color:#070910; }
+.field{ margin-bottom:14px; }
+.field label{ display:block; font-size:12px; color:var(--text-faint); margin-bottom:6px; font-weight:500; }
+.field input, .field textarea, .field select{ width:100%; background:var(--bg-2); border:1px solid var(--border); border-radius:7px; padding:10px 12px; color:var(--text); font-family:var(--body); font-size:14px; transition:border-color .15s; }
+.field input:focus, .field textarea:focus, .field select:focus{ outline:none; border-color:var(--blue); }
+.form-msg{ font-size:12px; margin-top:10px; min-height:16px; }
+.form-msg.err{ color:var(--red); }
+.form-msg.ok{ color:var(--green); }
+.req-item{ border-bottom:1px solid var(--border-soft); padding:16px 0; }
+.req-item:last-child{ border-bottom:none; }
+.req-top{ display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center; }
+.status-badge{ font-family:var(--mono); font-size:10.5px; padding:3px 10px; border-radius:100px; text-transform:capitalize; }
+.status-pending{ background:rgba(251,191,36,0.1); color:var(--amber); border:1px solid rgba(251,191,36,0.3); }
+.status-accepted{ background:rgba(52,211,153,0.1); color:var(--green); border:1px solid rgba(52,211,153,0.3); }
+.status-declined{ background:rgba(248,113,113,0.1); color:var(--red); border:1px solid rgba(248,113,113,0.3); }
+.req-msg{ color:var(--text-dim); font-size:13.5px; margin-top:8px; }
+.req-meta{ font-family:var(--mono); font-size:11px; color:var(--text-faint); margin-top:8px; }
+select.status-select{ background:var(--bg-2); border:1px solid var(--border); color:var(--text); border-radius:6px; padding:5px 8px; font-size:12px; font-family:var(--body); }
+footer{ text-align:center; padding:60px 0 50px; font-family:var(--mono); font-size:11.5px; color:var(--text-faint); }
+.hidden{ display:none !important; }
+.empty-note{ color:var(--text-faint); font-size:13px; padding:18px 0; text-align:center; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <span class="logo" data-page="home">RAU<span>.dev</span></span>
+    <div class="nav-links">
+      <a data-page="home">Home</a>
+      <a data-page="projects">Projects</a>
+      <a data-page="about">About</a>
+      <a data-page="contact">Contact</a>
+    </div>
+    <div class="nav-actions" id="navActions"></div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- ===== HOME PAGE ===== -->
+  <div class="page" id="page-home">
+    <div class="hero">
+      <div>
+        <div class="eyebrow"><span class="dot"></span>SYSTEM.STATUS — ACTIVE</div>
+        <h1 class="hero-title">Ahmad —<br>building things that<br>actually run.</h1>
+        <p id="heroRole" style="margin-top:16px; color:var(--text-dim); font-size:15.5px; max-width:460px;">Loading…</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" data-page="projects">View Projects</a>
+          <a class="btn btn-ghost" data-page="contact">Work With Me</a>
+        </div>
+        <div class="data-row">
+          <div><div class="label">STACK</div><div class="val">Python · Bash · Kotlin</div></div>
+          <div><div class="label">ENV</div><div class="val">Linux / BlackArch</div></div>
+          <div><div class="label">BASED</div><div class="val">Lahore, PK</div></div>
+        </div>
+      </div>
+      <div class="hero-photo">
+        <img id="profileImg" src="profile.jpeg" alt="Ahmad - RAU.dev">
+        <button class="photo-edit-btn hidden" id="changePhotoBtn">Change Photo</button>
+        <input type="file" id="photoInput" accept="image/*" class="hidden">
+      </div>
+    </div>
+
+    <section>
+      <div class="sec-head"><span class="sec-num">01</span><span class="sec-title">What I do</span><span class="sec-rule"></span></div>
+      <div id="skillsGrid"></div>
+    </section>
+
+    <section>
+      <div class="sec-head"><span class="sec-num">02</span><span class="sec-title">Recent work</span><span class="sec-rule"></span></div>
+      <div id="projectsPreview" style="display:flex; flex-direction:column; gap:14px;"></div>
+      <div style="margin-top:18px;"><a class="btn btn-ghost btn-sm" data-page="projects">See all projects →</a></div>
+    </section>
+  </div>
+
+  <!-- ===== PROJECTS PAGE ===== -->
+  <div class="page" id="page-projects">
+    <div class="page-head">
+      <div class="eyebrow"><span class="dot"></span>LOG — PROJECTS</div>
+      <h1 class="page-title">Things I've built</h1>
+      <p class="page-sub">Real projects, tagged by where they actually stand — shipped, in progress, or learning.</p>
+    </div>
+    <section style="margin-top:30px;">
+      <div id="adminAddBar" class="hidden" style="margin-bottom:20px;">
+        <button class="btn btn-primary btn-sm" id="openAddProject">+ Add Project</button>
+      </div>
+      <div id="projectsList"></div>
+    </section>
+  </div>
+
+  <!-- ===== ABOUT PAGE ===== -->
+  <div class="page" id="page-about">
+    <div class="page-head">
+      <div class="eyebrow"><span class="dot"></span>FILE — ABOUT.MD</div>
+      <h1 class="page-title">What I actually do</h1>
+      <p class="page-sub">A closer look at how I work, what I'm good at, and the environment I build in.</p>
+    </div>
+    <section style="margin-top:10px;">
+      <div class="card about-block"><h3>Background</h3><p id="aboutText">Loading…</p></div>
+      <div class="card about-block" style="margin-top:16px;"><h3>What I work on</h3><p id="aboutDetail">Loading…</p></div>
+    </section>
+    <section>
+      <div class="sec-head"><span class="sec-num">02</span><span class="sec-title">Skills</span><span class="sec-rule"></span></div>
+      <div id="skillsGridAbout"></div>
+    </section>
+    <section>
+      <div id="adminEditAbout" class="hidden">
+        <div class="sec-head"><span class="sec-num">03</span><span class="sec-title">Edit (admin only)</span><span class="sec-rule"></span></div>
+        <div class="card">
+          <div class="field"><label>Background text</label><textarea id="editAbout" rows="4"></textarea></div>
+          <div class="field"><label>What I work on text</label><textarea id="editDetail" rows="4"></textarea></div>
+          <div class="field"><label>Skills (JSON array of strings)</label><textarea id="editSkills" rows="3"></textarea></div>
+          <button class="btn btn-primary" id="saveAboutBtn">Save Changes</button>
+          <div class="form-msg" id="saveAboutMsg"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== CONTACT PAGE ===== -->
+  <div class="page" id="page-contact">
+    <div class="page-head">
+      <div class="eyebrow"><span class="dot"></span>CHANNEL — CONTACT</div>
+      <h1 class="page-title">Work with me</h1>
+      <p class="page-sub">Tell me what you need built. I'll get back to you with a clear answer.</p>
+    </div>
+    <section style="margin-top:10px;">
+      <div class="rate-strip">
+        <div><div class="label">Hourly Rate</div><div class="val" id="rateVal">Loading…</div></div>
+        <div style="font-family:var(--mono); font-size:12px; color:var(--text-faint);">rau.development.official@gmail.com · +92 316 0424173</div>
+      </div>
+    </section>
+    <section id="loggedOutMsg" class="hidden">
+      <div class="card" style="text-align:center; padding:40px;">
+        <p style="color:var(--text-dim); margin-bottom:18px;">Sign up or log in to send a request.</p>
+        <button class="btn btn-primary" id="ctaSignup">Sign Up / Log In</button>
+      </div>
+    </section>
+    <section id="clientView" class="hidden">
+      <div class="sec-head"><span class="sec-num">01</span><span class="sec-title">New Request</span><span class="sec-rule"></span></div>
+      <div class="card">
+        <div class="field"><label>What do you need built?</label><textarea id="reqMessage" rows="4"></textarea></div>
+        <div class="field"><label>Budget (optional)</label><input id="reqBudget" type="text"></div>
+        <button class="btn btn-primary" id="submitReqBtn">Submit Request</button>
+        <div class="form-msg" id="reqMsg"></div>
+      </div>
+      <div class="sec-head" style="margin-top:40px;"><span class="sec-num">02</span><span class="sec-title">My Requests</span><span class="sec-rule"></span></div>
+      <div class="card" id="myReqsList"><div class="empty-note">No requests yet.</div></div>
+    </section>
+    <section id="adminView" class="hidden">
+      <div class="sec-head"><span class="sec-num">01</span><span class="sec-title">Incoming Requests</span><span class="sec-rule"></span></div>
+      <div class="card" id="allReqsList"><div class="empty-note">No requests yet.</div></div>
+    </section>
+  </div>
+
+  <footer>RAU.dev · Lahore, Pakistan · built 2026</footer>
+</div>
+
+<!-- Auth modal -->
+<div class="overlay" id="authOverlay">
+  <div class="modal">
+    <button class="modal-close" id="closeModal">&times;</button>
+    <div class="tabs">
+      <button class="tab-btn active" data-form="login">Log In</button>
+      <button class="tab-btn" data-form="signup">Sign Up</button>
+    </div>
+    <form id="loginForm">
+      <div class="field"><label>Email</label><input type="email" id="loginEmail" required></div>
+      <div class="field"><label>Password</label><input type="password" id="loginPassword" required></div>
+      <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Log In</button>
+      <div class="form-msg" id="loginMsg"></div>
+    </form>
+    <form id="signupForm" class="hidden">
+      <div class="field"><label>Full Name</label><input type="text" id="signupName" required></div>
+      <div class="field"><label>Email</label><input type="email" id="signupEmail" required></div>
+      <div class="field"><label>Password</label><input type="password" id="signupPassword" required minlength="6"></div>
+      <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Create Account</button>
+      <div class="form-msg" id="signupMsg"></div>
+    </form>
+  </div>
+</div>
+
+<!-- Add/Edit project modal -->
+<div class="overlay" id="projectOverlay">
+  <div class="modal" style="max-width:440px;">
+    <button class="modal-close" id="closeProjectModal">&times;</button>
+    <h3 style="font-family:var(--display); font-size:17px; margin-bottom:18px;" id="projectModalTitle">Add Project</h3>
+    <div class="field"><label>Name</label><input type="text" id="pName"></div>
+    <div class="field"><label>Status</label>
+      <select id="pTag"><option value="shipped">Shipped</option><option value="progress">In Progress</option><option value="learning">Learning</option></select>
+    </div>
+    <div class="field"><label>Description</label><textarea id="pDesc" rows="3"></textarea></div>
+    <div class="field"><label>Tech Stack (comma separated)</label><input type="text" id="pStack" placeholder="Python, Linux, Bash"></div>
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-primary" id="saveProjectBtn" style="flex:1; justify-content:center;">Save</button>
+      <button class="btn btn-danger hidden" id="deleteProjectBtn">Delete</button>
+    </div>
+    <div class="form-msg" id="projectMsg"></div>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+const SUPABASE_URL = 'https://zeykmsxqtbdaufjhntmn.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_UG7GXen195zGHmt1l5tLYg_1IMaakqs';
+const ADMIN_EMAIL = 'rau.development.official@gmail.com';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+function isAdmin(){ return currentUser && currentUser.email === ADMIN_EMAIL; }
+
+const DEFAULTS = {
+  hero_role: "Python & Bash Automation Developer · AI Tooling · Android (Kotlin)",
+  about_text: "I am a self-taught developer based in Lahore, Pakistan, working primarily on Linux. I started from zero in 2022 and have spent every year since building real, working tools.",
+  about_detail: "I work across automation scripting, AI-integrated tooling, Android development, and Linux system-level work. I focus on shipping things that actually run in production, not demos.",
+  rate: "$10 - 15 / hr",
+  profile_image_url: "profile.jpeg",
+  skills_json: '["Python","Bash / Shell","Linux (BlackArch)","AI Automation","Android / Kotlin","Jetpack Compose","API Integration","Automation Scripting"]',
+  projects_json: '[{"name":"VoidBreaker","tag":"shipped","desc":"Modular Python framework for WiFi network auditing on BlackArch — scanning, handshake capture, WPA3 detection, automated reporting.","stack":"Python · Linux · Network Scripting"},{"name":"Game Booster","tag":"progress","desc":"Android performance app inspired by RedMagic GameBoost, using Shizuku for ADB-level access. Built for Play Store with freemium monetization.","stack":"Kotlin · Jetpack Compose · Shizuku"},{"name":"Phone Footprint Audit Tool","tag":"shipped","desc":"Python OSINT script for auditing phone number digital footprints, built for legitimate recon and data-aggregation analysis.","stack":"Python · OSINT · BlackArch"}]'
+};
+const TAG_LABEL = { shipped:'shipped', progress:'in progress', learning:'learning' };
+let contentCache = {...DEFAULTS};
+let projectsCache = [];
+let editingIndex = null;
+
+/* ===== Page routing ===== */
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.toggle('active', a.dataset.page===name));
+  window.location.hash = name;
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('[data-page]').forEach(el => {
+  el.addEventListener('click', () => showPage(el.dataset.page));
+});
+function routeFromHash(){
+  const valid = ['home','projects','about','contact'];
+  const h = window.location.hash.replace('#','');
+  showPage(valid.includes(h) ? h : 'home');
+}
+window.addEventListener('hashchange', routeFromHash);
+routeFromHash();
+
+/* ===== Auth modal ===== */
+const authOverlay = document.getElementById('authOverlay');
+function switchForm(name){
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.form===name));
+  document.getElementById('loginForm').classList.toggle('hidden', name!=='login');
+  document.getElementById('signupForm').classList.toggle('hidden', name!=='signup');
+}
+document.querySelectorAll('.tab-btn').forEach(btn => { btn.onclick = () => switchForm(btn.dataset.form); });
+document.getElementById('closeModal').onclick = () => authOverlay.classList.remove('show');
+function openAuthModal(form){ switchForm(form||'login'); authOverlay.classList.add('show'); }
+document.getElementById('ctaSignup').onclick = () => openAuthModal('signup');
+
+document.getElementById('signupForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name = document.getElementById('signupName').value;
+  const email = document.getElementById('signupEmail').value;
+  const password = document.getElementById('signupPassword').value;
+  const msg = document.getElementById('signupMsg');
+  msg.textContent = 'Creating account...'; msg.className='form-msg';
+  const { error } = await supabase.auth.signUp({ email, password, options:{ data:{ full_name:name } } });
+  if(error){ msg.textContent = error.message; msg.className='form-msg err'; return; }
+  msg.textContent = 'Account created!'; msg.className='form-msg ok';
+  setTimeout(()=>authOverlay.classList.remove('show'), 1000);
+});
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  const msg = document.getElementById('loginMsg');
+  msg.textContent = 'Logging in...'; msg.className='form-msg';
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if(error){ msg.textContent = error.message; msg.className='form-msg err'; return; }
+  authOverlay.classList.remove('show');
+});
+
+supabase.auth.onAuthStateChange((event, session) => {
+  currentUser = session?.user || null;
+  renderAll();
+});
+
+/* ===== Nav auth state ===== */
+function renderNav(){
+  const navActions = document.getElementById('navActions');
+  if(currentUser){
+    const label = isAdmin() ? 'Admin' : currentUser.email.split('@')[0];
+    navActions.innerHTML = `<span style="color:var(--text-dim); font-size:13px;">${label}</span><button class="btn btn-danger btn-sm" id="logoutBtn">Log Out</button>`;
+    document.getElementById('logoutBtn').onclick = async () => { await supabase.auth.signOut(); };
+  } else {
+    navActions.innerHTML = `<button class="btn btn-ghost btn-sm" id="loginBtn">Log In</button><button class="btn btn-primary btn-sm" id="signupBtn">Sign Up</button>`;
+    document.getElementById('loginBtn').onclick = () => openAuthModal('login');
+    document.getElementById('signupBtn').onclick = () => openAuthModal('signup');
+  }
+}
+
+/* ===== Load site content ===== */
+async function loadSiteContent(){
+  let content = {...DEFAULTS};
+  try{
+    const { data, error } = await supabase.from('site_content').select('key,value');
+    if(!error && data){ data.forEach(row => content[row.key] = row.value); }
+  }catch(e){}
+  return content;
+}
+
+function renderHome(){
+  document.getElementById('heroRole').textContent = contentCache.hero_role;
+  document.getElementById('profileImg').src = contentCache.profile_image_url || 'profile.jpeg';
+  try{
+    const skills = JSON.parse(contentCache.skills_json);
+    document.getElementById('skillsGrid').innerHTML = skills.map(s => `<div class="skill-chip"><span class="ico"></span>${s}</div>`).join('');
+  }catch(e){}
+  document.getElementById('projectsPreview').innerHTML = projectsCache.slice(0,2).map(p => `
+    <div class="card proj-card">
+      <div class="proj-head"><div class="proj-name-wrap"><span class="proj-name">${p.name}</span><span class="proj-tag tag-${p.tag}">${TAG_LABEL[p.tag]||p.tag}</span></div></div>
+      <p class="proj-desc">${p.desc}</p><p class="proj-stack">${p.stack}</p>
+    </div>`).join('');
+  document.getElementById('changePhotoBtn').classList.toggle('hidden', !isAdmin());
+}
+
+function renderProjectsPage(){
+  document.getElementById('adminAddBar').classList.toggle('hidden', !isAdmin());
+  const el = document.getElementById('projectsList');
+  if(!projectsCache.length){ el.innerHTML = '<div class="empty-note">No projects yet.</div>'; return; }
+  el.innerHTML = `<div style="display:flex; flex-direction:column; gap:14px;">` + projectsCache.map((p,i) => `
+    <div class="card proj-card">
+      <div class="proj-head">
+        <div class="proj-name-wrap"><span class="proj-name">${p.name}</span><span class="proj-tag tag-${p.tag}">${TAG_LABEL[p.tag]||p.tag}</span></div>
+        ${isAdmin() ? `<button class="btn btn-ghost btn-sm" data-edit="${i}">Edit</button>` : ''}
+      </div>
+      <p class="proj-desc">${p.desc}</p><p class="proj-stack">${p.stack}</p>
+    </div>`).join('') + `</div>`;
+  document.querySelectorAll('[data-edit]').forEach(btn => { btn.onclick = () => openProjectModal(parseInt(btn.dataset.edit)); });
+}
+
+function renderAboutPage(){
+  document.getElementById('aboutText').textContent = contentCache.about_text;
+  document.getElementById('aboutDetail').textContent = contentCache.about_detail;
+  try{
+    const skills = JSON.parse(contentCache.skills_json);
+    document.getElementById('skillsGridAbout').innerHTML = skills.map(s => `<div class="skill-chip"><span class="ico"></span>${s}</div>`).join('');
+  }catch(e){}
+  document.getElementById('adminEditAbout').classList.toggle('hidden', !isAdmin());
+  if(isAdmin()){
+    document.getElementById('editAbout').value = contentCache.about_text;
+    document.getElementById('editDetail').value = contentCache.about_detail;
+    document.getElementById('editSkills').value = contentCache.skills_json;
+  }
+}
+
+async function renderContactPage(){
+  document.getElementById('rateVal').textContent = contentCache.rate;
+  document.getElementById('loggedOutMsg').classList.toggle('hidden', !!currentUser);
+  document.getElementById('clientView').classList.toggle('hidden', !currentUser || isAdmin());
+  document.getElementById('adminView').classList.toggle('hidden', !isAdmin());
+  if(currentUser && !isAdmin()) loadMyRequests();
+  if(isAdmin()) loadAllRequests();
+}
+
+async function renderAll(){
+  renderNav();
+  contentCache = await loadSiteContent();
+  try{ projectsCache = JSON.parse(contentCache.projects_json); }catch(e){ projectsCache = []; }
+  renderHome(); renderProjectsPage(); renderAboutPage(); renderContactPage();
+}
+renderAll();
+
+/* ===== Project add/edit ===== */
+function openProjectModal(index){
+  editingIndex = index;
+  const overlay = document.getElementById('projectOverlay');
+  const deleteBtn = document.getElementById('deleteProjectBtn');
+  if(index === null){
+    document.getElementById('projectModalTitle').textContent = 'Add Project';
+    document.getElementById('pName').value = ''; document.getElementById('pTag').value = 'progress';
+    document.getElementById('pDesc').value = ''; document.getElementById('pStack').value = '';
+    deleteBtn.classList.add('hidden');
+  } else {
+    const p = projectsCache[index];
+    document.getElementById('projectModalTitle').textContent = 'Edit Project';
+    document.getElementById('pName').value = p.name; document.getElementById('pTag').value = p.tag;
+    document.getElementById('pDesc').value = p.desc; document.getElementById('pStack').value = p.stack;
+    deleteBtn.classList.remove('hidden');
+  }
+  document.getElementById('projectMsg').textContent = '';
+  overlay.classList.add('show');
+}
+document.getElementById('openAddProject').onclick = () => openProjectModal(null);
+document.getElementById('closeProjectModal').onclick = () => document.getElementById('projectOverlay').classList.remove('show');
+
+document.getElementById('saveProjectBtn').onclick = async () => {
+  const msg = document.getElementById('projectMsg');
+  const name = document.getElementById('pName').value.trim();
+  const desc = document.getElementById('pDesc').value.trim();
+  if(!name || !desc){ msg.textContent='Name and description required.'; msg.className='form-msg err'; return; }
+  const newProject = { name, tag: document.getElementById('pTag').value, desc, stack: document.getElementById('pStack').value.trim() };
+  if(editingIndex === null){ projectsCache.unshift(newProject); } else { projectsCache[editingIndex] = newProject; }
+  const { error } = await supabase.from('site_content').upsert({ key:'projects_json', value: JSON.stringify(projectsCache) });
+  if(error){ msg.textContent = error.message; msg.className='form-msg err'; return; }
+  document.getElementById('projectOverlay').classList.remove('show');
+  renderProjectsPage(); renderHome();
+};
+document.getElementById('deleteProjectBtn').onclick = async () => {
+  if(editingIndex === null) return;
+  projectsCache.splice(editingIndex, 1);
+  await supabase.from('site_content').upsert({ key:'projects_json', value: JSON.stringify(projectsCache) });
+  document.getElementById('projectOverlay').classList.remove('show');
+  renderProjectsPage(); renderHome();
+};
+
+/* ===== About save ===== */
+document.getElementById('saveAboutBtn').onclick = async () => {
+  const msg = document.getElementById('saveAboutMsg');
+  const skillsVal = document.getElementById('editSkills').value;
+  try{ JSON.parse(skillsVal); }catch(e){ msg.textContent='Skills must be valid JSON.'; msg.className='form-msg err'; return; }
+  const updates = [
+    { key:'about_text', value: document.getElementById('editAbout').value },
+    { key:'about_detail', value: document.getElementById('editDetail').value },
+    { key:'skills_json', value: skillsVal },
+  ];
+  const { error } = await supabase.from('site_content').upsert(updates);
+  if(error){ msg.textContent = error.message; msg.className='form-msg err'; return; }
+  msg.textContent = 'Saved.'; msg.className='form-msg ok';
+  contentCache = await loadSiteContent();
+  renderAboutPage(); renderHome();
+};
+
+/* ===== Photo upload (admin) ===== */
+document.getElementById('changePhotoBtn').onclick = () => document.getElementById('photoInput').click();
+document.getElementById('photoInput').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const ext = file.name.split('.').pop();
+  const path = `profile-${Date.now()}.${ext}`;
+  const { error: upErr } = await supabase.storage.from('avatars').upload(path, file, { upsert:true });
+  if(upErr){ alert('Upload failed: ' + upErr.message); return; }
+  const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path);
+  const publicUrl = urlData.publicUrl;
+  const { error: saveErr } = await supabase.from('site_content').upsert({ key:'profile_image_url', value: publicUrl });
+  if(saveErr){ alert('Saved photo but failed to update site: ' + saveErr.message); return; }
+  document.getElementById('profileImg').src = publicUrl;
+  contentCache.profile_image_url = publicUrl;
+});
+
+/* ===== Requests (contact page) ===== */
+document.getElementById('submitReqBtn').onclick = async () => {
+  const message = document.getElementById('reqMessage').value.trim();
+  const budget = document.getElementById('reqBudget').value.trim();
+  const msg = document.getElementById('reqMsg');
+  if(!message){ msg.textContent='Please describe what you need.'; msg.className='form-msg err'; return; }
+  const { error } = await supabase.from('requests').insert({
+    user_id: currentUser.id, name: currentUser.user_metadata?.full_name || currentUser.email, email: currentUser.email, message, budget
+  });
+  if(error){ msg.textContent = error.message; msg.className='form-msg err'; return; }
+  msg.textContent = 'Request submitted!'; msg.className='form-msg ok';
+  document.getElementById('reqMessage').value=''; document.getElementById('reqBudget').value='';
+  loadMyRequests();
+};
+async function loadMyRequests(){
+  const { data, error } = await supabase.from('requests').select('*').order('created_at',{ascending:false});
+  const el = document.getElementById('myReqsList');
+  if(error || !data || data.length===0){ el.innerHTML = '<div class="empty-note">No requests yet.</div>'; return; }
+  el.innerHTML = data.map(r => `
+    <div class="req-item">
+      <div class="req-top"><strong>${r.budget ? r.budget : 'No budget given'}</strong><span class="status-badge status-${r.status}">${r.status}</span></div>
+      <p class="req-msg">${r.message}</p><p class="req-meta">${new Date(r.created_at).toLocaleString()}</p>
+    </div>`).join('');
+}
+async function loadAllRequests(){
+  const { data, error } = await supabase.from('requests').select('*').order('created_at',{ascending:false});
+  const el = document.getElementById('allReqsList');
+  if(error || !data || data.length===0){ el.innerHTML = '<div class="empty-note">No requests yet.</div>'; return; }
+  el.innerHTML = data.map(r => `
+    <div class="req-item">
+      <div class="req-top"><strong>${r.name}</strong>
+        <select class="status-select" data-id="${r.id}">
+          <option value="pending" ${r.status==='pending'?'selected':''}>Pending</option>
+          <option value="accepted" ${r.status==='accepted'?'selected':''}>Accepted</option>
+          <option value="declined" ${r.status==='declined'?'selected':''}>Declined</option>
+        </select>
+      </div>
+      <p class="req-meta">${r.email} ${r.budget ? '· '+r.budget : ''}</p>
+      <p class="req-msg">${r.message}</p><p class="req-meta">${new Date(r.created_at).toLocaleString()}</p>
+    </div>`).join('');
+  document.querySelectorAll('.status-select').forEach(sel => {
+    sel.onchange = async () => { await supabase.from('requests').update({status:sel.value}).eq('id', sel.dataset.id); };
+  });
+}
+</script>
+</body>
+</html>
