@@ -331,7 +331,7 @@ html[data-theme="light"] #scrollTopBtn{ color:#f5f6f9; }
     </div>
     <section style="margin-top:10px;">
       <div class="rate-strip">
-        <div><div class="label">Hourly Rate</div><div class="val" id="rateVal"><span class="skeleton skel-text" style="width:90px;height:18px;"></span></div></div>
+        <div><div class="label">Pricing</div><div class="val" id="rateVal"><span class="skeleton skel-text" style="width:90px;height:18px;"></span></div></div>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <div class="contact-method" id="phoneMethod">
             <span class="btn btn-ghost btn-sm">📞 Phone</span>
@@ -441,7 +441,7 @@ html[data-theme="light"] #scrollTopBtn{ color:#f5f6f9; }
     </div>
     <div class="field"><label>Description</label><textarea id="pDesc" rows="3"></textarea></div>
     <div class="field"><label>Tech Stack (comma separated)</label><input type="text" id="pStack" placeholder="Python, Linux, Bash"></div>
-    <div class="field"><label>Tool Link (URL to GitHub repo / live tool)</label><input type="text" id="pLink" placeholder="https://github.com/RAU-dev/voidbreaker"></div>
+    <div class="field"><label>Tool Link (URL to GitHub repo / live tool)</label><input type="text" id="pLink" placeholder="https://github.com/RAU-dev/spectral"></div>
     <div style="display:flex; gap:10px;">
       <button class="btn btn-primary" id="saveProjectBtn" style="flex:1; justify-content:center;">Save</button>
       <button class="btn btn-danger hidden" id="deleteProjectBtn">Delete</button>
@@ -465,7 +465,7 @@ const DEFAULTS = {
   hero_role: "Python & Bash Automation Developer · AI Tooling · Android (Kotlin)",
   about_text: "I am a self-taught developer based in Lahore, Pakistan, working primarily on Linux. I started from zero in 2022 and have spent every year since building real, working tools.",
   about_detail: "I work across automation scripting, AI-integrated tooling, Android development, and Linux system-level work. I focus on shipping things that actually run in production, not demos.",
-  Pricing: "Based On Tool Difficulty",
+  rate: "Let's discuss based on your project",
   profile_image_url: "profile.jpeg",
   contact_phone: "+923160424173",
   contact_email: "rau.development.official@gmail.com",
@@ -479,7 +479,7 @@ const DEFAULTS = {
   cv_work_experience: "",
   cv_references: "Available on request",
   skills_json: JSON.stringify([
-    {name:"Python", detail:"Automation scripts, OSINT tooling, API integration, backend logic for tools like VoidBreaker and the Phone Footprint Audit Tool."},
+    {name:"Python", detail:"Automation scripts, OSINT tooling, API integration, backend logic for tools like Spectral and the Phone Footprint Audit Tool."},
     {name:"Bash / Shell", detail:"Linux automation, system scripting, BlackArch tooling, process orchestration."},
     {name:"Linux (BlackArch)", detail:"Day-to-day dev environment, network auditing, penetration-testing-adjacent tooling."},
     {name:"AI Automation", detail:"Integrating AI APIs into tools and workflows, building AI-assisted utilities."},
@@ -489,7 +489,7 @@ const DEFAULTS = {
     {name:"Automation Scripting", detail:"End-to-end scripts that remove manual repetitive work — from data collection to reporting."}
   ]),
   projects_json: JSON.stringify([
-    {name:"Spectral", tag:"shipped", desc:"Modular Python framework Open Source of Information gathering via Phone & G-Mail on BlackArch,Termux,Kali,Parrot OS — scanning Face, Password capture, Location detection, automated reporting.", stack:"Python · Linux · OSINT", link:""},
+    {name:"Spectral", tag:"shipped", desc:"Modular Python framework for WiFi network auditing on BlackArch — scanning, handshake capture, WPA3 detection, automated reporting.", stack:"Python · Linux · Network Scripting", link:""},
     {name:"Game Booster", tag:"progress", desc:"Android performance app inspired by RedMagic GameBoost, using Shizuku for ADB-level access. Built for Play Store with freemium monetization.", stack:"Kotlin · Jetpack Compose · Shizuku", link:""},
     {name:"Phone Footprint Audit Tool", tag:"shipped", desc:"Python OSINT script for auditing phone number digital footprints, built for legitimate recon and data-aggregation analysis.", stack:"Python · OSINT · BlackArch", link:""}
   ])
@@ -628,7 +628,7 @@ document.getElementById('cvPdfBtn').onclick = () => {
   doc.text(doc.splitTextToSize(d.role, 495), margin, y); y += 20;
   doc.setTextColor(0); doc.setFontSize(10);
   doc.text(`${d.dob ? 'DOB: '+d.dob+'   ' : ''}${d.nationality ? d.nationality : ''}`, margin, y); y += 16;
-  doc.text(`${d.email}   ${d.phone}   ${d.rate ? 'Rate: '+d.rate : ''}`, margin, y); y += 22;
+  doc.text(`${d.email}   ${d.phone}   ${d.rate ? 'Pricing: '+d.rate : ''}`, margin, y); y += 22;
   doc.setDrawColor(200); doc.line(margin, y, 545, y); y += 22;
   function heading(t){ doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.text(t, margin, y); y += 18; doc.setFont('helvetica','normal'); doc.setFontSize(10.5); }
   if(d.objective){
@@ -674,7 +674,7 @@ document.getElementById('cvDocBtn').onclick = () => {
     <h1 style="margin-bottom:2px;">${d.name}</h1>
     <p style="color:#555; margin-top:0;">${d.role}</p>
     <p style="font-size:11pt;">${d.dob ? 'DOB: '+d.dob+' &nbsp;|&nbsp; ' : ''}${d.nationality || ''}</p>
-    <p style="font-size:11pt;">${d.email} &nbsp;|&nbsp; ${d.phone} &nbsp;|&nbsp; ${d.rate ? 'Rate: '+d.rate : ''}</p>
+    <p style="font-size:11pt;">${d.email} &nbsp;|&nbsp; ${d.phone} &nbsp;|&nbsp; ${d.rate ? 'Pricing: '+d.rate : ''}</p>
     <hr>
     ${d.objective ? `<h2>Objective</h2><p>${d.objective}</p>` : ''}
     ${eduHtml ? `<h2>Education</h2>${eduHtml}` : ''}
