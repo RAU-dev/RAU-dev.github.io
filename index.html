@@ -67,9 +67,26 @@ section{ margin-top:64px; padding-bottom:8px; }
 .data-row .label{ font-family:var(--mono); font-size:10px; color:var(--text-faint); letter-spacing:1px; margin-bottom:4px; }
 .data-row .val{ font-size:13px; color:#c7cee0; }
 #skillsGrid, #skillsGridAbout{ display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px; }
-.skill-chip{ background:var(--card); border:1px solid var(--border); border-radius:9px; padding:13px 15px; font-size:13px; font-weight:500; color:var(--text); display:flex; align-items:center; gap:9px; transition:border-color .2s; }
+.skill-chip{ background:var(--card); border:1px solid var(--border); border-radius:9px; padding:13px 15px; font-size:13px; font-weight:500; color:var(--text); cursor:pointer; transition:border-color .2s; }
 .skill-chip:hover{ border-color:var(--blue); }
+.skill-chip-top{ display:flex; align-items:center; gap:9px; }
 .skill-chip .ico{ width:6px; height:6px; border-radius:2px; background:var(--blue-light); flex-shrink:0; }
+.skill-chip .arrow{ margin-left:auto; color:var(--text-faint); font-size:11px; transition:transform .2s; }
+.skill-chip.open .arrow{ transform:rotate(90deg); }
+.skill-detail{ display:none; margin-top:10px; padding-top:10px; border-top:1px solid var(--border-soft); color:var(--text-dim); font-size:12.5px; line-height:1.55; }
+.skill-chip.open .skill-detail{ display:block; }
+.proj-images{ display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+.proj-images img{ width:100%; max-width:260px; max-height:170px; object-fit:cover; border-radius:8px; border:1px solid var(--border-soft); }
+.proj-link-btn{ margin-top:14px; }
+.contact-method{ position:relative; cursor:pointer; }
+.contact-options{ display:none; position:absolute; top:calc(100% + 8px); right:0; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:8px; min-width:180px; z-index:30; box-shadow:0 8px 24px rgba(0,0,0,0.4); }
+.contact-options.show{ display:block; }
+.contact-options a{ display:block; padding:9px 12px; border-radius:6px; color:var(--text); font-size:13px; text-decoration:none; transition:background .15s; }
+.contact-options a:hover{ background:var(--bg-2); }
+.social-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:18px; }
+.social-icon{ width:38px; height:38px; border-radius:9px; background:var(--card); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--text-dim); text-decoration:none; transition:border-color .15s, color .15s; }
+.social-icon:hover{ border-color:var(--blue); color:var(--text); }
+.social-icon svg{ width:18px; height:18px; }
 .proj-card{ position:relative; }
 .proj-card::before{ content:''; position:absolute; top:0; left:0; width:2px; height:100%; background:var(--blue); }
 .proj-head{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:space-between; }
@@ -138,12 +155,13 @@ footer{ text-align:center; padding:60px 0 50px; font-family:var(--mono); font-si
     <div class="hero">
       <div>
         <div class="eyebrow"><span class="dot"></span>SYSTEM.STATUS — ACTIVE</div>
-        <h1 class="hero-title">Ahmad —<br>building things that<br>actually run.</h1>
+        <h1 class="hero-title">RAU —<br>building things that<br>actually run.</h1>
         <p id="heroRole" style="margin-top:16px; color:var(--text-dim); font-size:15.5px; max-width:460px;">Loading…</p>
         <div class="hero-cta">
           <a class="btn btn-primary" data-page="projects">View Projects</a>
           <a class="btn btn-ghost" data-page="contact">Work With Me</a>
         </div>
+        <div id="socialRow" class="social-row"></div>
         <div class="data-row">
           <div><div class="label">STACK</div><div class="val">Python · Bash · Kotlin</div></div>
           <div><div class="label">ENV</div><div class="val">Linux / BlackArch</div></div>
@@ -151,9 +169,7 @@ footer{ text-align:center; padding:60px 0 50px; font-family:var(--mono); font-si
         </div>
       </div>
       <div class="hero-photo">
-        <img id="profileImg" src="profile.jpeg" alt="Ahmad - RAU.dev">
-        <button class="photo-edit-btn hidden" id="changePhotoBtn">Change Photo</button>
-        <input type="file" id="photoInput" accept="image/*" class="hidden">
+        <img id="profileImg" src="profile.jpeg" alt="RAU.dev">
       </div>
     </div>
 
@@ -205,7 +221,8 @@ footer{ text-align:center; padding:60px 0 50px; font-family:var(--mono); font-si
         <div class="card">
           <div class="field"><label>Background text</label><textarea id="editAbout" rows="4"></textarea></div>
           <div class="field"><label>What I work on text</label><textarea id="editDetail" rows="4"></textarea></div>
-          <div class="field"><label>Skills (JSON array of strings)</label><textarea id="editSkills" rows="3"></textarea></div>
+          <div class="field"><label>Profile photo filename (upload the actual file to GitHub root first, then type its filename here, e.g. profile.jpeg)</label><input type="text" id="editPhoto"></div>
+          <div class="field"><label>Skills (JSON array — each item: {"name":"Python","detail":"what you do with it"})</label><textarea id="editSkills" rows="3"></textarea></div>
           <button class="btn btn-primary" id="saveAboutBtn">Save Changes</button>
           <div class="form-msg" id="saveAboutMsg"></div>
         </div>
@@ -223,7 +240,25 @@ footer{ text-align:center; padding:60px 0 50px; font-family:var(--mono); font-si
     <section style="margin-top:10px;">
       <div class="rate-strip">
         <div><div class="label">Hourly Rate</div><div class="val" id="rateVal">Loading…</div></div>
-        <div style="font-family:var(--mono); font-size:12px; color:var(--text-faint);">rau.development.official@gmail.com · +92 316 0424173</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <div class="contact-method" id="phoneMethod">
+            <span class="btn btn-ghost btn-sm">📞 Phone</span>
+            <div class="contact-options" id="phoneOptions"></div>
+          </div>
+          <div class="contact-method" id="emailMethod">
+            <span class="btn btn-ghost btn-sm">✉️ Email</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="adminEditSocial" class="hidden">
+      <div class="sec-head"><span class="sec-num">·</span><span class="sec-title">Edit Contact & Social (admin only)</span><span class="sec-rule"></span></div>
+      <div class="card">
+        <div class="field"><label>Phone number (with country code, e.g. +923160424173)</label><input type="text" id="editPhone"></div>
+        <div class="field"><label>Contact email</label><input type="text" id="editEmail"></div>
+        <div class="field"><label>Social links (one per line, just paste full URLs)</label><textarea id="editSocial" rows="5" placeholder="https://github.com/RAU-dev&#10;https://instagram.com/yourname&#10;https://linkedin.com/in/yourname"></textarea></div>
+        <button class="btn btn-primary" id="saveSocialBtn">Save Changes</button>
+        <div class="form-msg" id="saveSocialMsg"></div>
       </div>
     </section>
     <section id="loggedOutMsg" class="hidden">
@@ -287,6 +322,7 @@ footer{ text-align:center; padding:60px 0 50px; font-family:var(--mono); font-si
     </div>
     <div class="field"><label>Description</label><textarea id="pDesc" rows="3"></textarea></div>
     <div class="field"><label>Tech Stack (comma separated)</label><input type="text" id="pStack" placeholder="Python, Linux, Bash"></div>
+    <div class="field"><label>Tool Link (URL to GitHub repo / live tool)</label><input type="text" id="pLink" placeholder="https://github.com/RAU-dev/voidbreaker"></div>
     <div style="display:flex; gap:10px;">
       <button class="btn btn-primary" id="saveProjectBtn" style="flex:1; justify-content:center;">Save</button>
       <button class="btn btn-danger hidden" id="deleteProjectBtn">Delete</button>
@@ -312,8 +348,24 @@ const DEFAULTS = {
   about_detail: "I work across automation scripting, AI-integrated tooling, Android development, and Linux system-level work. I focus on shipping things that actually run in production, not demos.",
   rate: "$10 - 15 / hr",
   profile_image_url: "profile.jpeg",
-  skills_json: '["Python","Bash / Shell","Linux (BlackArch)","AI Automation","Android / Kotlin","Jetpack Compose","API Integration","Automation Scripting"]',
-  projects_json: '[{"name":"VoidBreaker","tag":"shipped","desc":"Modular Python framework for WiFi network auditing on BlackArch — scanning, handshake capture, WPA3 detection, automated reporting.","stack":"Python · Linux · Network Scripting"},{"name":"Game Booster","tag":"progress","desc":"Android performance app inspired by RedMagic GameBoost, using Shizuku for ADB-level access. Built for Play Store with freemium monetization.","stack":"Kotlin · Jetpack Compose · Shizuku"},{"name":"Phone Footprint Audit Tool","tag":"shipped","desc":"Python OSINT script for auditing phone number digital footprints, built for legitimate recon and data-aggregation analysis.","stack":"Python · OSINT · BlackArch"}]'
+  contact_phone: "+923160424173",
+  contact_email: "rau.development.official@gmail.com",
+  social_links: "https://github.com/RAU-dev",
+  skills_json: JSON.stringify([
+    {name:"Python", detail:"Automation scripts, OSINT tooling, API integration, backend logic for tools like VoidBreaker and the Phone Footprint Audit Tool."},
+    {name:"Bash / Shell", detail:"Linux automation, system scripting, BlackArch tooling, process orchestration."},
+    {name:"Linux (BlackArch)", detail:"Day-to-day dev environment, network auditing, penetration-testing-adjacent tooling."},
+    {name:"AI Automation", detail:"Integrating AI APIs into tools and workflows, building AI-assisted utilities."},
+    {name:"Android / Kotlin", detail:"Native Android apps, e.g. Game Booster using Shizuku for ADB-level access."},
+    {name:"Jetpack Compose", detail:"Modern declarative UI for Android apps."},
+    {name:"API Integration", detail:"Connecting tools to third-party and AI APIs, handling auth, rate limits, and data parsing."},
+    {name:"Automation Scripting", detail:"End-to-end scripts that remove manual repetitive work — from data collection to reporting."}
+  ]),
+  projects_json: JSON.stringify([
+    {name:"VoidBreaker", tag:"shipped", desc:"Modular Python framework for WiFi network auditing on BlackArch — scanning, handshake capture, WPA3 detection, automated reporting.", stack:"Python · Linux · Network Scripting", link:""},
+    {name:"Game Booster", tag:"progress", desc:"Android performance app inspired by RedMagic GameBoost, using Shizuku for ADB-level access. Built for Play Store with freemium monetization.", stack:"Kotlin · Jetpack Compose · Shizuku", link:""},
+    {name:"Phone Footprint Audit Tool", tag:"shipped", desc:"Python OSINT script for auditing phone number digital footprints, built for legitimate recon and data-aggregation analysis.", stack:"Python · OSINT · BlackArch", link:""}
+  ])
 };
 const TAG_LABEL = { shipped:'shipped', progress:'in progress', learning:'learning' };
 let contentCache = {...DEFAULTS};
@@ -404,19 +456,71 @@ async function loadSiteContent(){
   return content;
 }
 
+function slugify(name){ return name.toLowerCase().replace(/[^a-z0-9]+/g,''); }
+
+const SOCIAL_ICONS = {
+  github: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.55 0-.27-.01-1.17-.02-2.12-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.7 1.25 3.35.96.1-.74.39-1.25.71-1.54-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.21-1.49 3.18-1.18 3.18-1.18.62 1.58.23 2.75.11 3.04.73.81 1.18 1.84 1.18 3.1 0 4.43-2.7 5.41-5.27 5.69.41.36.78 1.07.78 2.15 0 1.56-.01 2.81-.02 3.19 0 .31.21.66.79.55A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>',
+  linkedin: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56z"/></svg>',
+  instagram: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 3.25.15 4.77 1.69 4.92 4.92.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.15 3.23-1.66 4.77-4.92 4.92-1.27.06-1.64.07-4.85.07s-3.58-.01-4.85-.07c-3.26-.15-4.77-1.7-4.92-4.92-.06-1.27-.07-1.65-.07-4.85s.01-3.58.07-4.85C2.36 3.92 3.88 2.38 7.15 2.23 8.42 2.17 8.8 2.16 12 2.16zM12 0C8.74 0 8.33.01 7.05.07 2.7.27.27 2.69.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.2 4.36 2.62 6.78 6.98 6.98C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c4.35-.2 6.78-2.62 6.98-6.98.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.2-4.35-2.62-6.78-6.98-6.98C15.67.01 15.26 0 12 0zm0 5.84A6.16 6.16 0 1 0 18.16 12 6.16 6.16 0 0 0 12 5.84zm0 10.16A4 4 0 1 1 16 12a4 4 0 0 1-4 4zm6.4-10.85a1.44 1.44 0 1 0 0 2.88 1.44 1.44 0 0 0 0-2.88z"/></svg>',
+  twitter: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.95 4.57a10 10 0 0 1-2.82.78 4.96 4.96 0 0 0 2.16-2.72c-.95.55-2 .96-3.12 1.18a4.92 4.92 0 0 0-8.39 4.48 13.94 13.94 0 0 1-10.1-5.13 4.92 4.92 0 0 0 1.52 6.57 4.9 4.9 0 0 1-2.22-.61c0 2.39 1.7 4.38 3.95 4.83a4.93 4.93 0 0 1-2.22.08 4.93 4.93 0 0 0 4.6 3.42 9.87 9.87 0 0 1-6.1 2.1 9.7 9.7 0 0 1-1.17-.07 13.94 13.94 0 0 0 7.55 2.21c9.05 0 14-7.5 14-14 0-.21 0-.42-.02-.63A10 10 0 0 0 24 4.59z"/></svg>',
+  facebook: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.99 3.66 9.13 8.44 9.88v-7H7.9v-2.88h2.54V9.79c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.24.2 2.24.2v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.87h2.78l-.45 2.88h-2.33v7C18.34 21.13 22 16.99 22 12z"/></svg>',
+  youtube: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2s-.23-1.64-.94-2.36c-.9-.95-1.9-.95-2.36-1C16.94 2.5 12 2.5 12 2.5h-.01s-4.93 0-8.2.34c-.46.05-1.46.05-2.36 1C.72 4.56.5 6.2.5 6.2S.27 8.13.27 10.06v1.87c0 1.93.23 3.86.23 3.86s.23 1.64.94 2.36c.9.95 2.08.92 2.6 1.02 1.9.18 8.06.34 8.06.34s4.94-.01 8.21-.35c.46-.05 1.46-.05 2.36-1 .71-.72.94-2.36.94-2.36s.23-1.93.23-3.86v-1.87c0-1.93-.23-3.86-.23-3.86zM9.75 14.6V7.9l6.5 3.35z"/></svg>',
+  whatsapp: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.15-1.7-.85-2-.95-.27-.1-.46-.15-.66.15-.2.3-.75.95-.92 1.15-.17.2-.34.22-.63.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.65-2.05-.17-.3-.02-.46.13-.61.15-.15.3-.34.45-.5.15-.18.2-.3.3-.5.1-.2.05-.36-.03-.51-.08-.15-.65-1.56-.9-2.14-.2-.46-.4-.4-.55-.4-.15 0-.32 0-.5 0-.17 0-.45.07-.68.32-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.6.13.18 1.78 2.84 4.42 3.87 2.65 1.03 2.65.69 3.13.65.47-.05 1.53-.62 1.75-1.22.22-.6.22-1.1.15-1.22-.07-.12-.27-.2-.57-.34zM12 .5C5.66.5.5 5.66.5 12c0 2.1.56 4.07 1.55 5.77L.5 23.5l5.9-1.55A11.46 11.46 0 0 0 12 23.5c6.34 0 11.5-5.16 11.5-11.5S18.34.5 12 .5zm0 20.95c-1.95 0-3.76-.57-5.28-1.55l-.38-.24-3.5.92.94-3.42-.25-.4A9.45 9.45 0 0 1 2.55 12c0-5.22 4.24-9.45 9.45-9.45S21.45 6.78 21.45 12 17.22 21.45 12 21.45z"/></svg>'
+};
+function detectSocialIcon(url){
+  const u = url.toLowerCase();
+  for(const key in SOCIAL_ICONS){ if(u.includes(key)) return key; }
+  return 'link';
+}
+const GENERIC_LINK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 14a3.5 3.5 0 0 0 5 0l3-3a3.5 3.5 0 0 0-5-5l-1 1"/><path d="M14 10a3.5 3.5 0 0 0-5 0l-3 3a3.5 3.5 0 0 0 5 5l1-1"/></svg>';
+
+function renderSocialRow(targetId){
+  const links = (contentCache.social_links||'').split('\n').map(l=>l.trim()).filter(Boolean);
+  const el = document.getElementById(targetId);
+  if(!el) return;
+  el.innerHTML = links.map(url => {
+    const key = detectSocialIcon(url);
+    const icon = SOCIAL_ICONS[key] || GENERIC_LINK_ICON;
+    return `<a class="social-icon" href="${url}" target="_blank" rel="noopener">${icon}</a>`;
+  }).join('');
+}
+
+function renderSkillChips(targetId, skills){
+  document.getElementById(targetId).innerHTML = skills.map((s,i) => `
+    <div class="skill-chip" data-skill="${targetId}-${i}">
+      <div class="skill-chip-top"><span class="ico"></span>${s.name}<span class="arrow">▸</span></div>
+      <div class="skill-detail">${s.detail || ''}</div>
+    </div>`).join('');
+  document.querySelectorAll(`[data-skill^="${targetId}-"]`).forEach(chip => {
+    chip.onclick = () => chip.classList.toggle('open');
+  });
+}
+
+function projectImagesHTML(name){
+  const slug = slugify(name);
+  const candidates = [`images/${slug}.png`, `images/${slug}-2.png`, `images/${slug}-3.png`];
+  return `<div class="proj-images">` + candidates.map(src => `<img src="${src}" loading="lazy" onerror="this.remove()">`).join('') + `</div>`;
+}
+function projectLinkHTML(link){
+  if(!link) return '';
+  return `<a class="btn btn-primary btn-sm proj-link-btn" href="${link}" target="_blank" rel="noopener">View / Use Tool →</a>`;
+}
+
 function renderHome(){
   document.getElementById('heroRole').textContent = contentCache.hero_role;
   document.getElementById('profileImg').src = contentCache.profile_image_url || 'profile.jpeg';
   try{
     const skills = JSON.parse(contentCache.skills_json);
-    document.getElementById('skillsGrid').innerHTML = skills.map(s => `<div class="skill-chip"><span class="ico"></span>${s}</div>`).join('');
+    renderSkillChips('skillsGrid', skills);
   }catch(e){}
+  renderSocialRow('socialRow');
   document.getElementById('projectsPreview').innerHTML = projectsCache.slice(0,2).map(p => `
     <div class="card proj-card">
       <div class="proj-head"><div class="proj-name-wrap"><span class="proj-name">${p.name}</span><span class="proj-tag tag-${p.tag}">${TAG_LABEL[p.tag]||p.tag}</span></div></div>
       <p class="proj-desc">${p.desc}</p><p class="proj-stack">${p.stack}</p>
+      ${projectImagesHTML(p.name)}
+      ${projectLinkHTML(p.link)}
     </div>`).join('');
-  document.getElementById('changePhotoBtn').classList.toggle('hidden', !isAdmin());
 }
 
 function renderProjectsPage(){
@@ -430,6 +534,8 @@ function renderProjectsPage(){
         ${isAdmin() ? `<button class="btn btn-ghost btn-sm" data-edit="${i}">Edit</button>` : ''}
       </div>
       <p class="proj-desc">${p.desc}</p><p class="proj-stack">${p.stack}</p>
+      ${projectImagesHTML(p.name)}
+      ${projectLinkHTML(p.link)}
     </div>`).join('') + `</div>`;
   document.querySelectorAll('[data-edit]').forEach(btn => { btn.onclick = () => openProjectModal(parseInt(btn.dataset.edit)); });
 }
@@ -439,18 +545,47 @@ function renderAboutPage(){
   document.getElementById('aboutDetail').textContent = contentCache.about_detail;
   try{
     const skills = JSON.parse(contentCache.skills_json);
-    document.getElementById('skillsGridAbout').innerHTML = skills.map(s => `<div class="skill-chip"><span class="ico"></span>${s}</div>`).join('');
+    renderSkillChips('skillsGridAbout', skills);
   }catch(e){}
   document.getElementById('adminEditAbout').classList.toggle('hidden', !isAdmin());
   if(isAdmin()){
     document.getElementById('editAbout').value = contentCache.about_text;
     document.getElementById('editDetail').value = contentCache.about_detail;
     document.getElementById('editSkills').value = contentCache.skills_json;
+    document.getElementById('editPhoto').value = contentCache.profile_image_url||'';
   }
+}
+
+function setupContactMethods(){
+  const phone = (contentCache.contact_phone||'').replace(/[^\d+]/g,'');
+  const email = contentCache.contact_email||'';
+  const phoneOptions = document.getElementById('phoneOptions');
+  phoneOptions.innerHTML = `
+    <a href="https://wa.me/${phone.replace('+','')}" target="_blank" rel="noopener">💬 WhatsApp</a>
+    <a href="tel:${phone}">📲 Call</a>
+    <a href="sms:${phone}">✉️ Text Message</a>`;
+  const phoneMethod = document.getElementById('phoneMethod');
+  phoneMethod.onclick = (e) => {
+    e.stopPropagation();
+    phoneOptions.classList.toggle('show');
+  };
+  document.addEventListener('click', (e) => {
+    if(!phoneMethod.contains(e.target)) phoneOptions.classList.remove('show');
+  });
+  document.getElementById('emailMethod').onclick = () => {
+    window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`, '_blank');
+  };
 }
 
 async function renderContactPage(){
   document.getElementById('rateVal').textContent = contentCache.rate;
+  setupContactMethods();
+  document.getElementById('adminEditSocial').classList.toggle('hidden', !isAdmin());
+  if(isAdmin()){
+    document.getElementById('editPhone').value = contentCache.contact_phone||'';
+    document.getElementById('editEmail').value = contentCache.contact_email||'';
+    document.getElementById('editSocial').value = contentCache.social_links||'';
+  }
   document.getElementById('loggedOutMsg').classList.toggle('hidden', !!currentUser);
   document.getElementById('clientView').classList.toggle('hidden', !currentUser || isAdmin());
   document.getElementById('adminView').classList.toggle('hidden', !isAdmin());
@@ -475,12 +610,14 @@ function openProjectModal(index){
     document.getElementById('projectModalTitle').textContent = 'Add Project';
     document.getElementById('pName').value = ''; document.getElementById('pTag').value = 'progress';
     document.getElementById('pDesc').value = ''; document.getElementById('pStack').value = '';
+    document.getElementById('pLink').value = '';
     deleteBtn.classList.add('hidden');
   } else {
     const p = projectsCache[index];
     document.getElementById('projectModalTitle').textContent = 'Edit Project';
     document.getElementById('pName').value = p.name; document.getElementById('pTag').value = p.tag;
     document.getElementById('pDesc').value = p.desc; document.getElementById('pStack').value = p.stack;
+    document.getElementById('pLink').value = p.link || '';
     deleteBtn.classList.remove('hidden');
   }
   document.getElementById('projectMsg').textContent = '';
@@ -494,7 +631,7 @@ document.getElementById('saveProjectBtn').onclick = async () => {
   const name = document.getElementById('pName').value.trim();
   const desc = document.getElementById('pDesc').value.trim();
   if(!name || !desc){ msg.textContent='Name and description required.'; msg.className='form-msg err'; return; }
-  const newProject = { name, tag: document.getElementById('pTag').value, desc, stack: document.getElementById('pStack').value.trim() };
+  const newProject = { name, tag: document.getElementById('pTag').value, desc, stack: document.getElementById('pStack').value.trim(), link: document.getElementById('pLink').value.trim() };
   if(editingIndex === null){ projectsCache.unshift(newProject); } else { projectsCache[editingIndex] = newProject; }
   const { error } = await supabase.from('site_content').upsert({ key:'projects_json', value: JSON.stringify(projectsCache) });
   if(error){ msg.textContent = error.message; msg.className='form-msg err'; return; }
@@ -518,6 +655,7 @@ document.getElementById('saveAboutBtn').onclick = async () => {
     { key:'about_text', value: document.getElementById('editAbout').value },
     { key:'about_detail', value: document.getElementById('editDetail').value },
     { key:'skills_json', value: skillsVal },
+    { key:'profile_image_url', value: document.getElementById('editPhoto').value.trim() },
   ];
   const { error } = await supabase.from('site_content').upsert(updates);
   if(error){ msg.textContent = error.message; msg.className='form-msg err'; return; }
@@ -526,22 +664,20 @@ document.getElementById('saveAboutBtn').onclick = async () => {
   renderAboutPage(); renderHome();
 };
 
-/* ===== Photo upload (admin) ===== */
-document.getElementById('changePhotoBtn').onclick = () => document.getElementById('photoInput').click();
-document.getElementById('photoInput').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if(!file) return;
-  const ext = file.name.split('.').pop();
-  const path = `profile-${Date.now()}.${ext}`;
-  const { error: upErr } = await supabase.storage.from('avatars').upload(path, file, { upsert:true });
-  if(upErr){ alert('Upload failed: ' + upErr.message); return; }
-  const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path);
-  const publicUrl = urlData.publicUrl;
-  const { error: saveErr } = await supabase.from('site_content').upsert({ key:'profile_image_url', value: publicUrl });
-  if(saveErr){ alert('Saved photo but failed to update site: ' + saveErr.message); return; }
-  document.getElementById('profileImg').src = publicUrl;
-  contentCache.profile_image_url = publicUrl;
-});
+/* ===== Contact & Social save (admin) ===== */
+document.getElementById('saveSocialBtn').onclick = async () => {
+  const msg = document.getElementById('saveSocialMsg');
+  const updates = [
+    { key:'contact_phone', value: document.getElementById('editPhone').value.trim() },
+    { key:'contact_email', value: document.getElementById('editEmail').value.trim() },
+    { key:'social_links', value: document.getElementById('editSocial').value.trim() },
+  ];
+  const { error } = await supabase.from('site_content').upsert(updates);
+  if(error){ msg.textContent = error.message; msg.className='form-msg err'; return; }
+  msg.textContent = 'Saved.'; msg.className='form-msg ok';
+  contentCache = await loadSiteContent();
+  renderHome(); renderContactPage();
+};
 
 /* ===== Requests (contact page) ===== */
 document.getElementById('submitReqBtn').onclick = async () => {
