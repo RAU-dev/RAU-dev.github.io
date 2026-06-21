@@ -5,16 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RAU.dev — Python Automation & AI Tooling Developer</title>
 <meta name="description" content="Python & Bash automation, AI tooling, and Android development. Based in Lahore, Pakistan.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070910'/%3E%3Ctext x='32' y='44' font-family='Arial, sans-serif' font-size='34' font-weight='700' fill='white' text-anchor='middle'%3ER%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{
   --bg:#070910; --bg-2:#0a0d16; --card:#0c1120; --border:#1a2236; --border-soft:#141b2c;
-  --blue:#3b82f6; --blue-light:#60a5fa; --cyan:#22d3ee;
+  --blue:#d8dce6; --blue-light:#f3f5fa; --cyan:#aab2c4;
   --text:#f1f3f8; --text-dim:#8b95ac; --text-faint:#4d5670;
   --green:#34d399; --amber:#fbbf24; --red:#f87171;
   --display:'Sora',sans-serif; --body:'Inter',sans-serif; --mono:'JetBrains Mono',monospace;
 }
+html[data-theme="light"]{
+  --bg:#f5f6f9; --bg-2:#ececf1; --card:#ffffff; --border:#dde1ea; --border-soft:#e6e9f0;
+  --blue:#1c1f27; --blue-light:#3a3f4d; --cyan:#5b6273;
+  --text:#12141c; --text-dim:#565d70; --text-faint:#9298a8;
+  --green:#1a9c6f; --amber:#b8860b; --red:#d9453d;
+}
+html[data-theme="light"] body{ background-image:linear-gradient(rgba(20,30,60,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(20,30,60,0.04) 1px, transparent 1px); }
+html[data-theme="light"] .btn-primary{ color:#f5f6f9; }
+html[data-theme="light"] .tab-btn.active{ color:#f5f6f9; }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{
@@ -135,9 +146,57 @@ section{ margin-top:64px; padding-bottom:8px; }
 .req-msg{ color:var(--text-dim); font-size:13.5px; margin-top:8px; }
 .req-meta{ font-family:var(--mono); font-size:11px; color:var(--text-faint); margin-top:8px; }
 select.status-select{ background:var(--bg-2); border:1px solid var(--border); color:var(--text); border-radius:6px; padding:5px 8px; font-size:12px; font-family:var(--body); }
-footer{ text-align:center; padding:60px 0 50px; font-family:var(--mono); font-size:11.5px; color:var(--text-faint); }
+footer{ padding:60px 0 40px; font-family:var(--body); font-size:13px; color:var(--text-faint); border-top:1px solid var(--border-soft); margin-top:40px; }
+.footer-grid{ display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:32px; }
+@media (max-width:680px){ .footer-grid{ grid-template-columns:1fr; gap:28px; } }
+.footer-col h4{ font-family:var(--display); font-size:13px; color:var(--text-dim); letter-spacing:0.5px; margin-bottom:14px; text-transform:uppercase; }
+.footer-brand{ font-family:var(--display); font-weight:600; font-size:16px; color:var(--text); margin-bottom:8px; }
+.footer-brand span{ color:var(--blue-light); }
+.footer-desc{ color:var(--text-faint); font-size:12.5px; max-width:260px; margin-bottom:14px; }
+.footer-links{ display:flex; flex-direction:column; gap:10px; }
+.footer-links a{ color:var(--text-dim); text-decoration:none; font-size:13px; cursor:pointer; transition:color .15s; }
+.footer-links a:hover{ color:var(--text); }
+.footer-contact{ display:flex; flex-direction:column; gap:8px; font-family:var(--mono); font-size:12.5px; color:var(--text-dim); }
+.footer-bottom{ margin-top:36px; padding-top:20px; border-top:1px solid var(--border-soft); font-family:var(--mono); font-size:11px; color:var(--text-faint); text-align:center; }
 .hidden{ display:none !important; }
 .empty-note{ color:var(--text-faint); font-size:13px; padding:18px 0; text-align:center; }
+
+/* Skeleton shimmer */
+.skeleton{ display:inline-block; border-radius:5px; background:linear-gradient(90deg, var(--border-soft) 25%, var(--border) 37%, var(--border-soft) 63%); background-size:400% 100%; animation:shimmer 1.4s ease infinite; }
+@keyframes shimmer{ 0%{background-position:100% 50%;} 100%{background-position:0 50%;} }
+.skel-text{ height:13px; width:70%; margin:4px 0; }
+.skel-line{ height:13px; width:100%; margin:6px 0; }
+
+/* Project image placeholder */
+.proj-placeholder{ width:100%; max-width:260px; height:120px; border-radius:8px; border:1px dashed var(--border); background:var(--bg-2); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:var(--text-faint); }
+.proj-placeholder svg{ width:24px; height:24px; opacity:0.6; }
+.proj-placeholder span{ font-family:var(--mono); font-size:10.5px; }
+
+/* Scroll to top button */
+#scrollTopBtn{ position:fixed; bottom:24px; right:24px; width:44px; height:44px; border-radius:50%; background:var(--blue); color:#070910; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:18px; box-shadow:0 6px 18px rgba(0,0,0,0.35); opacity:0; transform:translateY(12px); pointer-events:none; transition:opacity .2s, transform .2s; z-index:60; }
+#scrollTopBtn.show{ opacity:1; transform:translateY(0); pointer-events:auto; }
+html[data-theme="light"] #scrollTopBtn{ color:#f5f6f9; }
+
+/* Theme toggle */
+.theme-toggle{ background:transparent; border:1px solid var(--border); color:var(--text-dim); border-radius:7px; width:34px; height:34px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:15px; transition:border-color .15s, color .15s; }
+.theme-toggle:hover{ border-color:var(--blue); color:var(--text); }
+
+/* Typing animation */
+.typed-cursor{ display:inline-block; width:2px; background:var(--blue-light); margin-left:2px; animation:blink 0.9s step-end infinite; }
+@keyframes blink{ 0%,49%{opacity:1;} 50%,100%{opacity:0;} }
+
+/* CV download dropdown */
+.cv-method{ position:relative; display:inline-block; }
+.cv-options{ display:none; position:absolute; top:calc(100% + 8px); left:0; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:8px; min-width:170px; z-index:30; box-shadow:0 8px 24px rgba(0,0,0,0.4); }
+.cv-options.show{ display:block; }
+.cv-options button{ display:block; width:100%; text-align:left; padding:9px 12px; border-radius:6px; color:var(--text); font-size:13px; background:none; border:none; cursor:pointer; transition:background .15s; font-family:var(--body); }
+.cv-options button:hover{ background:var(--bg-2); }
+
+/* Admin reply system */
+.reply-row{ margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; }
+.reply-row input{ flex:1; min-width:180px; background:var(--bg-2); border:1px solid var(--border); border-radius:7px; padding:8px 10px; color:var(--text); font-size:13px; }
+.admin-reply-box{ margin-top:10px; background:var(--bg-2); border:1px solid var(--border-soft); border-radius:8px; padding:10px 12px; font-size:13px; color:var(--text-dim); }
+.admin-reply-box strong{ color:var(--blue-light); font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px; }
 </style>
 </head>
 <body>
@@ -152,6 +211,7 @@ footer{ text-align:center; padding:60px 0 50px; font-family:var(--mono); font-si
       <a data-page="contact">Contact</a>
     </div>
     <div class="nav-actions" id="navActions"></div>
+    <button class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</button>
     <button class="menu-toggle" id="menuToggle">☰</button>
   </div>
   <div class="mobile-menu" id="mobileMenu">
@@ -170,7 +230,7 @@ footer{ text-align:center; padding:60px 0 50px; font-family:var(--mono); font-si
       <div>
         <div class="eyebrow"><span class="dot"></span>SYSTEM.STATUS — ACTIVE</div>
         <h1 class="hero-title">RAU —<br>Building things that<br>Actually run.</h1>
-        <p id="heroRole" style="margin-top:16px; color:var(--text-dim); font-size:15.5px; max-width:460px;">Loading…</p>
+        <p id="heroRole" style="margin-top:16px; color:var(--text-dim); font-size:15.5px; max-width:460px; min-height:24px;"><span class="skeleton skel-text" style="width:280px;"></span></p>
         <div class="hero-cta">
           <a class="btn btn-primary" data-page="projects">View Projects</a>
           <a class="btn btn-ghost" data-page="contact">Work With Me</a>
@@ -220,10 +280,19 @@ footer{ text-align:center; padding:60px 0 50px; font-family:var(--mono); font-si
       <div class="eyebrow"><span class="dot"></span>FILE — ABOUT.MD</div>
       <h1 class="page-title">What I actually do</h1>
       <p class="page-sub">A closer look at how I work, what I'm good at, and the environment I build in.</p>
+      <div style="margin-top:22px;">
+        <div class="cv-method" id="cvMethod">
+          <button class="btn btn-primary btn-sm" id="cvBtn">⬇ Download CV</button>
+          <div class="cv-options" id="cvOptions">
+            <button id="cvPdfBtn">📄 PDF (.pdf)</button>
+            <button id="cvDocBtn">📝 Word (.doc)</button>
+          </div>
+        </div>
+      </div>
     </div>
     <section style="margin-top:10px;">
-      <div class="card about-block"><h3>Background</h3><p id="aboutText">Loading…</p></div>
-      <div class="card about-block" style="margin-top:16px;"><h3>What I work on</h3><p id="aboutDetail">Loading…</p></div>
+      <div class="card about-block"><h3>Background</h3><p id="aboutText"><span class="skeleton skel-line"></span><span class="skeleton skel-line" style="width:85%;"></span></p></div>
+      <div class="card about-block" style="margin-top:16px;"><h3>What I work on</h3><p id="aboutDetail"><span class="skeleton skel-line"></span><span class="skeleton skel-line" style="width:75%;"></span></p></div>
     </section>
     <section>
       <div class="sec-head"><span class="sec-num">02</span><span class="sec-title">Skills</span><span class="sec-rule"></span></div>
@@ -237,6 +306,15 @@ footer{ text-align:center; padding:60px 0 50px; font-family:var(--mono); font-si
           <div class="field"><label>What I work on text</label><textarea id="editDetail" rows="4"></textarea></div>
           <div class="field"><label>Profile photo filename (upload the actual file to GitHub root first, then type its filename here, e.g. profile.jpeg)</label><input type="text" id="editPhoto"></div>
           <div class="field"><label>Skills (JSON array — each item: {"name":"Python","detail":"what you do with it"})</label><textarea id="editSkills" rows="3"></textarea></div>
+          <div class="sec-head" style="margin:22px 0 14px;"><span class="sec-num">·</span><span class="sec-title">CV Details</span><span class="sec-rule"></span></div>
+          <div class="field"><label>Full name</label><input type="text" id="editFullName"></div>
+          <div class="field"><label>Date of birth</label><input type="text" id="editDOB" placeholder="06 Oct 2004"></div>
+          <div class="field"><label>Nationality</label><input type="text" id="editNationality"></div>
+          <div class="field"><label>Career objective</label><textarea id="editObjective" rows="3"></textarea></div>
+          <div class="field"><label>Education (one entry per line)</label><textarea id="editEducation" rows="3"></textarea></div>
+          <div class="field"><label>Languages</label><input type="text" id="editLanguages" placeholder="English, Urdu"></div>
+          <div class="field"><label>Work experience (leave blank to hide this section on the CV)</label><textarea id="editWorkExp" rows="3"></textarea></div>
+          <div class="field"><label>References</label><input type="text" id="editReferences"></div>
           <button class="btn btn-primary" id="saveAboutBtn">Save Changes</button>
           <div class="form-msg" id="saveAboutMsg"></div>
         </div>
@@ -253,7 +331,7 @@ footer{ text-align:center; padding:60px 0 50px; font-family:var(--mono); font-si
     </div>
     <section style="margin-top:10px;">
       <div class="rate-strip">
-        <div><div class="label">Hourly Rate</div><div class="val" id="rateVal">Loading…</div></div>
+        <div><div class="label">Hourly Rate</div><div class="val" id="rateVal"><span class="skeleton skel-text" style="width:90px;height:18px;"></span></div></div>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <div class="contact-method" id="phoneMethod">
             <span class="btn btn-ghost btn-sm">📞 Phone</span>
@@ -298,8 +376,35 @@ footer{ text-align:center; padding:60px 0 50px; font-family:var(--mono); font-si
     </section>
   </div>
 
-  <footer>RAU.dev · Lahore, Pakistan · built 2026</footer>
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="footer-brand">RAU<span>.dev</span></div>
+        <p class="footer-desc">Python & Bash automation, AI tooling, and Android development — based in Lahore, Pakistan.</p>
+        <div id="footerSocialRow" class="social-row"></div>
+      </div>
+      <div class="footer-col">
+        <h4>Navigate</h4>
+        <div class="footer-links">
+          <a data-page="home">Home</a>
+          <a data-page="projects">Projects</a>
+          <a data-page="about">About</a>
+          <a data-page="contact">Contact</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <div class="footer-contact">
+          <span id="footerEmail"></span>
+          <span id="footerPhone"></span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">RAU.dev · Lahore, Pakistan · built 2026</div>
+  </footer>
 </div>
+
+<button id="scrollTopBtn" title="Back to top">↑</button>
 
 <!-- Auth modal -->
 <div class="overlay" id="authOverlay">
@@ -365,6 +470,14 @@ const DEFAULTS = {
   contact_phone: "+923160424173",
   contact_email: "rau.development.official@gmail.com",
   social_links: "https://github.com/RAU-dev",
+  cv_full_name: "Rana Ahmad Umar",
+  cv_dob: "06 Oct 2004",
+  cv_nationality: "Pakistani",
+  cv_objective: "Self-taught Python & Bash automation developer focused on AI-integrated tooling and Android development. Looking to take on freelance projects where I can ship real, production-ready software rather than demos — automation scripts, AI-powered utilities, and native Android apps.",
+  cv_education: "Matriculation in Science\nIntermediate in Computer Science (I.C.S)",
+  cv_languages: "English, Urdu",
+  cv_work_experience: "",
+  cv_references: "Available on request",
   skills_json: JSON.stringify([
     {name:"Python", detail:"Automation scripts, OSINT tooling, API integration, backend logic for tools like VoidBreaker and the Phone Footprint Audit Tool."},
     {name:"Bash / Shell", detail:"Linux automation, system scripting, BlackArch tooling, process orchestration."},
@@ -376,7 +489,7 @@ const DEFAULTS = {
     {name:"Automation Scripting", detail:"End-to-end scripts that remove manual repetitive work — from data collection to reporting."}
   ]),
   projects_json: JSON.stringify([
-    {name:"VoidBreaker", tag:"shipped", desc:"Modular Python framework for WiFi network auditing on BlackArch — scanning, handshake capture, WPA3 detection, automated reporting.", stack:"Python · Linux · Network Scripting", link:""},
+    {name:"Spectral", tag:"shipped", desc:"Modular Python framework Open Source of Information gathering via Phone & G-Mail on BlackArch,Termux,Kali,Parrot OS — scanning Face, Password capture, Location detection, automated reporting.", stack:"Python · Linux · OSINT", link:""},
     {name:"Game Booster", tag:"progress", desc:"Android performance app inspired by RedMagic GameBoost, using Shizuku for ADB-level access. Built for Play Store with freemium monetization.", stack:"Kotlin · Jetpack Compose · Shizuku", link:""},
     {name:"Phone Footprint Audit Tool", tag:"shipped", desc:"Python OSINT script for auditing phone number digital footprints, built for legitimate recon and data-aggregation analysis.", stack:"Python · OSINT · BlackArch", link:""}
   ])
@@ -398,9 +511,17 @@ function showPage(name){
 document.querySelectorAll('[data-page]').forEach(el => {
   el.addEventListener('click', () => showPage(el.dataset.page));
 });
-document.getElementById('menuToggle').onclick = () => {
+document.getElementById('menuToggle').onclick = (e) => {
+  e.stopPropagation();
   document.getElementById('mobileMenu').classList.toggle('show');
 };
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('mobileMenu');
+  const toggle = document.getElementById('menuToggle');
+  if(menu.classList.contains('show') && !menu.contains(e.target) && !toggle.contains(e.target)){
+    menu.classList.remove('show');
+  }
+});
 function routeFromHash(){
   const valid = ['home','projects','about','contact'];
   const h = window.location.hash.replace('#','');
@@ -408,6 +529,52 @@ function routeFromHash(){
 }
 window.addEventListener('hashchange', routeFromHash);
 routeFromHash();
+
+/* ===== Dark / Light theme toggle ===== */
+const THEME_KEY = 'rau_theme';
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('themeToggle').textContent = theme === 'light' ? '☀️' : '🌙';
+  localStorage.setItem(THEME_KEY, theme);
+}
+applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
+document.getElementById('themeToggle').onclick = () => {
+  const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  applyTheme(current === 'light' ? 'dark' : 'light');
+};
+
+/* ===== Scroll to top ===== */
+const scrollTopBtn = document.getElementById('scrollTopBtn');
+window.addEventListener('scroll', () => {
+  scrollTopBtn.classList.toggle('show', window.scrollY > 420);
+});
+scrollTopBtn.onclick = () => window.scrollTo({ top:0, behavior:'smooth' });
+
+/* ===== Typing animation (hero tagline) ===== */
+function startTypingLoop(el, text){
+  if(!el || !text) return;
+  if(el._typingActive && el._typingText === text) return;
+  el._typingActive = true;
+  el._typingText = text;
+  el.innerHTML = '<span class="typed-text"></span><span class="typed-cursor"></span>';
+  const span = el.querySelector('.typed-text');
+  let i = 0, deleting = false;
+  function tick(){
+    if(el._typingText !== text) return; // text changed elsewhere, stop this loop
+    if(!deleting){
+      i++;
+      span.textContent = text.slice(0, i);
+      if(i >= text.length){ deleting = false; setTimeout(()=>{ deleting = true; tick(); }, 2200); return; }
+      setTimeout(tick, 38);
+    } else {
+      i--;
+      span.textContent = text.slice(0, i);
+      if(i <= 0){ deleting = false; setTimeout(tick, 500); return; }
+      setTimeout(tick, 22);
+    }
+  }
+  setTimeout(tick, 38);
+}
 
 /* ===== Auth modal ===== */
 const authOverlay = document.getElementById('authOverlay');
@@ -420,6 +587,111 @@ document.querySelectorAll('.tab-btn').forEach(btn => { btn.onclick = () => switc
 document.getElementById('closeModal').onclick = () => authOverlay.classList.remove('show');
 function openAuthModal(form){ switchForm(form||'login'); authOverlay.classList.add('show'); }
 document.getElementById('ctaSignup').onclick = () => openAuthModal('signup');
+
+/* ===== CV Download (PDF / Word) ===== */
+const cvBtn = document.getElementById('cvBtn');
+const cvOptions = document.getElementById('cvOptions');
+cvBtn.onclick = (e) => { e.stopPropagation(); cvOptions.classList.toggle('show'); };
+document.addEventListener('click', (e) => {
+  if(!document.getElementById('cvMethod').contains(e.target)) cvOptions.classList.remove('show');
+});
+function cvData(){
+  let skills = [];
+  try{ skills = JSON.parse(contentCache.skills_json).map(s => typeof s === 'string' ? s : s.name); }catch(e){}
+  return {
+    name: contentCache.cv_full_name || 'Rana Ahmad Umar',
+    dob: contentCache.cv_dob || '',
+    nationality: contentCache.cv_nationality || '',
+    role: contentCache.hero_role || '',
+    objective: contentCache.cv_objective || '',
+    education: (contentCache.cv_education || '').split('\n').map(s=>s.trim()).filter(Boolean),
+    about: contentCache.about_text || '',
+    detail: contentCache.about_detail || '',
+    skills,
+    workExperience: (contentCache.cv_work_experience || '').trim(),
+    languages: contentCache.cv_languages || '',
+    references: contentCache.cv_references || '',
+    projects: projectsCache || [],
+    email: contentCache.contact_email || '',
+    phone: contentCache.contact_phone || '',
+    rate: contentCache.rate || ''
+  };
+}
+document.getElementById('cvPdfBtn').onclick = () => {
+  cvOptions.classList.remove('show');
+  const d = cvData();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'pt', format:'a4' });
+  const margin = 50; let y = 60;
+  doc.setFont('helvetica','bold'); doc.setFontSize(22); doc.text(d.name, margin, y); y += 22;
+  doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.setTextColor(90);
+  doc.text(doc.splitTextToSize(d.role, 495), margin, y); y += 20;
+  doc.setTextColor(0); doc.setFontSize(10);
+  doc.text(`${d.dob ? 'DOB: '+d.dob+'   ' : ''}${d.nationality ? d.nationality : ''}`, margin, y); y += 16;
+  doc.text(`${d.email}   ${d.phone}   ${d.rate ? 'Rate: '+d.rate : ''}`, margin, y); y += 22;
+  doc.setDrawColor(200); doc.line(margin, y, 545, y); y += 22;
+  function heading(t){ doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.text(t, margin, y); y += 18; doc.setFont('helvetica','normal'); doc.setFontSize(10.5); }
+  if(d.objective){
+    heading('Objective');
+    const lines = doc.splitTextToSize(d.objective, 495);
+    doc.text(lines, margin, y); y += lines.length * 14 + 18;
+  }
+  if(d.education.length){
+    heading('Education');
+    d.education.forEach(line => { doc.text(line, margin, y); y += 14; });
+    y += 8;
+  }
+  heading('Background');
+  doc.text(doc.splitTextToSize(d.about, 495), margin, y); y += doc.splitTextToSize(d.about, 495).length * 14 + 18;
+  heading('What I work on');
+  doc.text(doc.splitTextToSize(d.detail, 495), margin, y); y += doc.splitTextToSize(d.detail, 495).length * 14 + 18;
+  heading('Skills');
+  doc.text(doc.splitTextToSize(d.skills.join('  ·  '), 495), margin, y); y += doc.splitTextToSize(d.skills.join('  ·  '), 495).length * 14 + 18;
+  if(d.workExperience){
+    heading('Work Experience');
+    const lines = doc.splitTextToSize(d.workExperience, 495);
+    doc.text(lines, margin, y); y += lines.length * 14 + 18;
+  }
+  heading('Projects');
+  d.projects.forEach(p => {
+    doc.setFont('helvetica','bold'); doc.setFontSize(10.5); doc.text(`${p.name}  (${p.tag})`, margin, y); y += 14;
+    doc.setFont('helvetica','normal');
+    const lines = doc.splitTextToSize(p.desc + (p.stack ? '  —  ' + p.stack : ''), 495);
+    doc.text(lines, margin, y); y += lines.length * 13 + 10;
+  });
+  if(d.languages){ heading('Languages'); doc.text(d.languages, margin, y); y += 22; }
+  if(d.references){ heading('References'); doc.text(d.references, margin, y); y += 18; }
+  doc.save(d.name.replace(/\s+/g,'-') + '-CV.pdf');
+};
+document.getElementById('cvDocBtn').onclick = () => {
+  cvOptions.classList.remove('show');
+  const d = cvData();
+  const projectsHtml = d.projects.map(p => `<p><b>${p.name}</b> (${p.tag})<br>${p.desc}${p.stack ? ' — <i>'+p.stack+'</i>' : ''}</p>`).join('');
+  const eduHtml = d.education.map(e => `<p style="margin:2px 0;">${e}</p>`).join('');
+  const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+  <head><meta charset="utf-8"><title>${d.name} CV</title></head>
+  <body style="font-family:Calibri, Arial, sans-serif;">
+    <h1 style="margin-bottom:2px;">${d.name}</h1>
+    <p style="color:#555; margin-top:0;">${d.role}</p>
+    <p style="font-size:11pt;">${d.dob ? 'DOB: '+d.dob+' &nbsp;|&nbsp; ' : ''}${d.nationality || ''}</p>
+    <p style="font-size:11pt;">${d.email} &nbsp;|&nbsp; ${d.phone} &nbsp;|&nbsp; ${d.rate ? 'Rate: '+d.rate : ''}</p>
+    <hr>
+    ${d.objective ? `<h2>Objective</h2><p>${d.objective}</p>` : ''}
+    ${eduHtml ? `<h2>Education</h2>${eduHtml}` : ''}
+    <h2>Background</h2><p>${d.about}</p>
+    <h2>What I work on</h2><p>${d.detail}</p>
+    <h2>Skills</h2><p>${d.skills.join(' &middot; ')}</p>
+    ${d.workExperience ? `<h2>Work Experience</h2><p>${d.workExperience}</p>` : ''}
+    <h2>Projects</h2>${projectsHtml}
+    ${d.languages ? `<h2>Languages</h2><p>${d.languages}</p>` : ''}
+    ${d.references ? `<h2>References</h2><p>${d.references}</p>` : ''}
+  </body></html>`;
+  const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = d.name.replace(/\s+/g,'-') + '-CV.doc';
+  document.body.appendChild(link); link.click(); link.remove();
+};
 
 document.getElementById('signupForm').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -515,24 +787,42 @@ function renderSkillChips(targetId, skills){
   });
 }
 
+function checkProjImagesEmpty(id){
+  const el = document.getElementById(id);
+  if(!el || el.querySelector('.proj-placeholder')) return;
+  if(el.children.length === 0){
+    el.innerHTML = `<div class="proj-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>No preview yet</span></div>`;
+  }
+}
+window.checkProjImagesEmpty = checkProjImagesEmpty; // needed: module scope isn't global, but inline onerror= runs in global scope
 function projectImagesHTML(name){
   const slug = slugify(name);
   const candidates = [`images/${slug}.png`, `images/${slug}-2.png`, `images/${slug}-3.png`];
-  return `<div class="proj-images">` + candidates.map(src => `<img src="${src}" loading="lazy" onerror="this.remove()">`).join('') + `</div>`;
+  const id = 'pimg-' + slug + '-' + Math.random().toString(36).slice(2,7);
+  return `<div class="proj-images" id="${id}">` + candidates.map(src =>
+    `<img src="${src}" loading="lazy" onerror="this.remove(); checkProjImagesEmpty('${id}')">`
+  ).join('') + `</div>`;
 }
 function projectLinkHTML(link){
   if(!link) return '';
   return `<a class="btn btn-primary btn-sm proj-link-btn" href="${link}" target="_blank" rel="noopener">View / Use Tool →</a>`;
 }
 
+function renderFooter(){
+  renderSocialRow('footerSocialRow');
+  document.getElementById('footerEmail').textContent = contentCache.contact_email ? '✉ ' + contentCache.contact_email : '';
+  document.getElementById('footerPhone').textContent = contentCache.contact_phone ? '📞 ' + contentCache.contact_phone : '';
+}
+
 function renderHome(){
-  document.getElementById('heroRole').textContent = contentCache.hero_role;
+  startTypingLoop(document.getElementById('heroRole'), contentCache.hero_role);
   document.getElementById('profileImg').src = contentCache.profile_image_url || 'profile.jpeg';
   try{
     const skills = JSON.parse(contentCache.skills_json);
     renderSkillChips('skillsGrid', skills);
   }catch(e){}
   renderSocialRow('socialRow');
+  renderFooter();
   document.getElementById('projectsPreview').innerHTML = projectsCache.slice(0,2).map(p => `
     <div class="card proj-card">
       <div class="proj-head"><div class="proj-name-wrap"><span class="proj-name">${p.name}</span><span class="proj-tag tag-${p.tag}">${TAG_LABEL[p.tag]||p.tag}</span></div></div>
@@ -572,6 +862,14 @@ function renderAboutPage(){
     document.getElementById('editDetail').value = contentCache.about_detail;
     document.getElementById('editSkills').value = contentCache.skills_json;
     document.getElementById('editPhoto').value = contentCache.profile_image_url||'';
+    document.getElementById('editFullName').value = contentCache.cv_full_name||'';
+    document.getElementById('editDOB').value = contentCache.cv_dob||'';
+    document.getElementById('editNationality').value = contentCache.cv_nationality||'';
+    document.getElementById('editObjective').value = contentCache.cv_objective||'';
+    document.getElementById('editEducation').value = contentCache.cv_education||'';
+    document.getElementById('editLanguages').value = contentCache.cv_languages||'';
+    document.getElementById('editWorkExp').value = contentCache.cv_work_experience||'';
+    document.getElementById('editReferences').value = contentCache.cv_references||'';
   }
 }
 
@@ -675,6 +973,14 @@ document.getElementById('saveAboutBtn').onclick = async () => {
     { key:'about_detail', value: document.getElementById('editDetail').value },
     { key:'skills_json', value: skillsVal },
     { key:'profile_image_url', value: document.getElementById('editPhoto').value.trim() },
+    { key:'cv_full_name', value: document.getElementById('editFullName').value.trim() },
+    { key:'cv_dob', value: document.getElementById('editDOB').value.trim() },
+    { key:'cv_nationality', value: document.getElementById('editNationality').value.trim() },
+    { key:'cv_objective', value: document.getElementById('editObjective').value },
+    { key:'cv_education', value: document.getElementById('editEducation').value },
+    { key:'cv_languages', value: document.getElementById('editLanguages').value.trim() },
+    { key:'cv_work_experience', value: document.getElementById('editWorkExp').value },
+    { key:'cv_references', value: document.getElementById('editReferences').value.trim() },
   ];
   const { error } = await supabase.from('site_content').upsert(updates);
   if(error){ msg.textContent = error.message; msg.className='form-msg err'; return; }
@@ -720,6 +1026,7 @@ async function loadMyRequests(){
     <div class="req-item">
       <div class="req-top"><strong>${r.budget ? r.budget : 'No budget given'}</strong><span class="status-badge status-${r.status}">${r.status}</span></div>
       <p class="req-msg">${r.message}</p><p class="req-meta">${new Date(r.created_at).toLocaleString()}</p>
+      ${r.admin_reply ? `<div class="admin-reply-box"><strong>Reply from RAU.dev</strong>${r.admin_reply}</div>` : ''}
     </div>`).join('');
 }
 async function loadAllRequests(){
@@ -737,9 +1044,26 @@ async function loadAllRequests(){
       </div>
       <p class="req-meta">${r.email} ${r.budget ? '· '+r.budget : ''}</p>
       <p class="req-msg">${r.message}</p><p class="req-meta">${new Date(r.created_at).toLocaleString()}</p>
+      ${r.admin_reply ? `<div class="admin-reply-box"><strong>Your reply</strong>${r.admin_reply}</div>` : ''}
+      <div class="reply-row">
+        <input type="text" class="reply-input" data-id="${r.id}" placeholder="${r.admin_reply ? 'Send a new reply…' : 'e.g. Contact me on WhatsApp'}" value="">
+        <button class="btn btn-ghost btn-sm reply-send" data-id="${r.id}">Send Reply</button>
+      </div>
     </div>`).join('');
   document.querySelectorAll('.status-select').forEach(sel => {
     sel.onchange = async () => { await supabase.from('requests').update({status:sel.value}).eq('id', sel.dataset.id); };
+  });
+  document.querySelectorAll('.reply-send').forEach(btn => {
+    btn.onclick = async () => {
+      const id = btn.dataset.id;
+      const input = document.querySelector(`.reply-input[data-id="${id}"]`);
+      const text = input.value.trim();
+      if(!text) return;
+      btn.disabled = true; btn.textContent = 'Sending…';
+      const { error } = await supabase.from('requests').update({ admin_reply: text }).eq('id', id);
+      if(error){ btn.textContent = 'Failed'; btn.disabled = false; return; }
+      loadAllRequests();
+    };
   });
 }
 </script>
