@@ -33,6 +33,13 @@ nav{ position:sticky; top:0; z-index:50; background:rgba(7,9,16,0.88); backdrop-
 .nav-links a:hover, .nav-links a.active{color:var(--text);}
 .nav-actions{display:flex; gap:10px; align-items:center;}
 @media (max-width:680px){ .nav-links{display:none;} }
+.menu-toggle{ display:none; background:transparent; border:1px solid var(--border); color:var(--text); border-radius:6px; padding:7px 10px; cursor:pointer; font-size:16px; }
+@media (max-width:680px){ .menu-toggle{display:inline-flex; align-items:center;} }
+.mobile-menu{ display:none; flex-direction:column; gap:2px; background:var(--bg-2); border-bottom:1px solid var(--border-soft); padding:10px 24px 14px; }
+.mobile-menu.show{ display:flex; }
+.mobile-menu a{ color:var(--text-dim); text-decoration:none; padding:10px 4px; font-size:14.5px; font-weight:500; border-bottom:1px solid var(--border-soft); }
+.mobile-menu a:last-child{ border-bottom:none; }
+.mobile-menu a.active{ color:var(--blue-light); }
 .btn{ font-family:var(--body); font-weight:500; font-size:13px; padding:9px 16px; border-radius:6px; border:none; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px; transition:transform .15s, background .15s, border-color .15s, color .15s; }
 .btn-primary{ background:var(--blue); color:#070910; font-weight:600; }
 .btn-primary:hover{ background:var(--blue-light); }
@@ -145,6 +152,13 @@ footer{ text-align:center; padding:60px 0 50px; font-family:var(--mono); font-si
       <a data-page="contact">Contact</a>
     </div>
     <div class="nav-actions" id="navActions"></div>
+    <button class="menu-toggle" id="menuToggle">☰</button>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a data-page="home">Home</a>
+    <a data-page="projects">Projects</a>
+    <a data-page="about">About</a>
+    <a data-page="contact">Contact</a>
   </div>
 </nav>
 
@@ -155,7 +169,7 @@ footer{ text-align:center; padding:60px 0 50px; font-family:var(--mono); font-si
     <div class="hero">
       <div>
         <div class="eyebrow"><span class="dot"></span>SYSTEM.STATUS — ACTIVE</div>
-        <h1 class="hero-title">RAU —<br>building things that<br>actually run.</h1>
+        <h1 class="hero-title">RAU —<br>Building things that<br>Actually run.</h1>
         <p id="heroRole" style="margin-top:16px; color:var(--text-dim); font-size:15.5px; max-width:460px;">Loading…</p>
         <div class="hero-cta">
           <a class="btn btn-primary" data-page="projects">View Projects</a>
@@ -376,13 +390,17 @@ let editingIndex = null;
 function showPage(name){
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
-  document.querySelectorAll('.nav-links a').forEach(a => a.classList.toggle('active', a.dataset.page===name));
+  document.querySelectorAll('.nav-links a, .mobile-menu a').forEach(a => a.classList.toggle('active', a.dataset.page===name));
   window.location.hash = name;
   window.scrollTo(0,0);
+  document.getElementById('mobileMenu').classList.remove('show');
 }
 document.querySelectorAll('[data-page]').forEach(el => {
   el.addEventListener('click', () => showPage(el.dataset.page));
 });
+document.getElementById('menuToggle').onclick = () => {
+  document.getElementById('mobileMenu').classList.toggle('show');
+};
 function routeFromHash(){
   const valid = ['home','projects','about','contact'];
   const h = window.location.hash.replace('#','');
@@ -486,10 +504,11 @@ function renderSocialRow(targetId){
 }
 
 function renderSkillChips(targetId, skills){
-  document.getElementById(targetId).innerHTML = skills.map((s,i) => `
+  const normalized = skills.map(s => typeof s === 'string' ? {name:s, detail:''} : s);
+  document.getElementById(targetId).innerHTML = normalized.map((s,i) => `
     <div class="skill-chip" data-skill="${targetId}-${i}">
       <div class="skill-chip-top"><span class="ico"></span>${s.name}<span class="arrow">▸</span></div>
-      <div class="skill-detail">${s.detail || ''}</div>
+      <div class="skill-detail">${s.detail || 'No details added yet.'}</div>
     </div>`).join('');
   document.querySelectorAll(`[data-skill^="${targetId}-"]`).forEach(chip => {
     chip.onclick = () => chip.classList.toggle('open');
