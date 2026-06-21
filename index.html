@@ -348,6 +348,7 @@ html[data-theme="light"] #scrollTopBtn{ color:#f5f6f9; }
       <div class="card">
         <div class="field"><label>Phone number (with country code, e.g. +923160424173)</label><input type="text" id="editPhone"></div>
         <div class="field"><label>Contact email</label><input type="text" id="editEmail"></div>
+        <div class="field"><label>Pricing (shown on Contact page + CV)</label><input type="text" id="editRate" placeholder="Let's discuss based on your project"></div>
         <div class="field"><label>Social links (one per line, just paste full URLs)</label><textarea id="editSocial" rows="5" placeholder="https://github.com/RAU-dev&#10;https://instagram.com/yourname&#10;https://linkedin.com/in/yourname"></textarea></div>
         <button class="btn btn-primary" id="saveSocialBtn">Save Changes</button>
         <div class="form-msg" id="saveSocialMsg"></div>
@@ -901,6 +902,7 @@ async function renderContactPage(){
   if(isAdmin()){
     document.getElementById('editPhone').value = contentCache.contact_phone||'';
     document.getElementById('editEmail').value = contentCache.contact_email||'';
+    document.getElementById('editRate').value = contentCache.rate||'';
     document.getElementById('editSocial').value = contentCache.social_links||'';
   }
   document.getElementById('loggedOutMsg').classList.toggle('hidden', !!currentUser);
@@ -995,6 +997,7 @@ document.getElementById('saveSocialBtn').onclick = async () => {
   const updates = [
     { key:'contact_phone', value: document.getElementById('editPhone').value.trim() },
     { key:'contact_email', value: document.getElementById('editEmail').value.trim() },
+    { key:'rate', value: document.getElementById('editRate').value.trim() },
     { key:'social_links', value: document.getElementById('editSocial').value.trim() },
   ];
   const { error } = await supabase.from('site_content').upsert(updates);
