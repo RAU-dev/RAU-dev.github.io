@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAU.dev — Python Automation & AI Tooling Developer</title>
+<meta name="description" content="Python & Bash automation, AI tooling, and Android development. Based in Lahore, Pakistan.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070910'/%3E%3Ctext x='32' y='44' font-family='Arial, sans-serif' font-size='34' font-weight='700' fill='white' text-anchor='middle'%3ER%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --bg:#070910; --bg-2:#0a0d16; --card:#0c1120; --border:#1a2236; --border-soft:#141b2c;
+  --blue:#d8dce6; --blue-light:#f3f5fa; --cyan:#aab2c4;
+  --text:#f1f3f8; --text-dim:#8b95ac; --text-faint:#4d5670;
+  --green:#34d399; --amber:#fbbf24; --red:#f87171;
+  --display:'Sora',sans-serif; --body:'Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+}
+html[data-theme="light"]{
+  --bg:#f5f6f9; --bg-2:#ececf1; --card:#ffffff; --border:#dde1ea; --border-soft:#e6e9f0;
+  --blue:#1c1f27; --blue-light:#3a3f4d; --cyan:#5b6273;
+  --text:#12141c; --text-dim:#565d70; --text-faint:#9298a8;
+  --green:#1a9c6f; --amber:#b8860b; --red:#d9453d;
+}
+html[data-theme="light"] body{ background-image:linear-gradient(rgba(20,30,60,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(20,30,60,0.04) 1px, transparent 1px); }
+html[data-theme="light"] .btn-primary{ color:#f5f6f9; }
+html[data-theme="light"] .tab-btn.active{ color:#f5f6f9; }
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  background-image:linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
+  background-size:28px 28px; color:var(--text); font-family:var(--body); line-height:1.65; min-height:100vh;
+}
+@media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important;} }
+.wrap{max-width:980px;margin:0 auto;padding:0 24px;}
+nav{ position:sticky; top:0; z-index:50; background:rgba(7,9,16,0.88); backdrop-filter:blur(12px); border-bottom:1px solid var(--border-soft); }
+.nav-inner{ max-width:980px;margin:0 auto;padding:16px 24px; display:flex; align-items:center; justify-content:space-between; }
+.logo{font-family:var(--display); font-weight:600; font-size:17px; letter-spacing:-0.4px; text-decoration:none; color:var(--text); cursor:pointer;}
+.logo span{color:var(--blue-light);}
+.nav-links{display:flex; gap:26px; align-items:center;}
+.nav-links a{color:var(--text-dim); text-decoration:none; font-size:13.5px; font-weight:500; transition:color .15s; cursor:pointer;}
+.nav-links a:hover, .nav-links a.active{color:var(--text);}
+.nav-actions{display:flex; gap:10px; align-items:center;}
+@media (max-width:680px){ .nav-links{display:none;} }
+.menu-toggle{ display:none; background:transparent; border:1px solid var(--border); color:var(--text); border-radius:6px; padding:7px 10px; cursor:pointer; font-size:16px; }
+@media (max-width:680px){ .menu-toggle{display:inline-flex; align-items:center;} }
+.mobile-menu{ display:none; flex-direction:column; gap:2px; background:var(--bg-2); border-bottom:1px solid var(--border-soft); padding:10px 24px 14px; }
+.mobile-menu.show{ display:flex; }
+.mobile-menu a{ color:var(--text-dim); text-decoration:none; padding:10px 4px; font-size:14.5px; font-weight:500; border-bottom:1px solid var(--border-soft); }
+.mobile-menu a:last-child{ border-bottom:none; }
+.mobile-menu a.active{ color:var(--blue-light); }
+.btn{ font-family:var(--body); font-weight:500; font-size:13px; padding:9px 16px; border-radius:6px; border:none; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px; transition:transform .15s, background .15s, border-color .15s, color .15s; }
+.btn-primary{ background:var(--blue); color:#070910; font-weight:600; }
+.btn-primary:hover{ background:var(--blue-light); }
+.btn-ghost{ background:transparent; border:1px solid var(--border); color:var(--text-dim); }
+.btn-ghost:hover{ border-color:var(--blue); color:var(--text); }
+.btn-sm{ padding:7px 13px; font-size:12px; }
+.btn-danger{ background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.3); color:var(--red); }
+.page{ display:none; }
+.page.active{ display:block; }
+.page-head{ padding:56px 0 40px; }
+.eyebrow{ font-family:var(--mono); font-size:11.5px; color:var(--blue-light); letter-spacing:1.5px; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+.eyebrow .dot{ width:6px; height:6px; border-radius:50%; background:var(--green); }
+.page-title{ font-family:var(--display); font-weight:600; font-size:clamp(28px,4.5vw,42px); letter-spacing:-1px; line-height:1.1; }
+.page-sub{ margin-top:14px; color:var(--text-dim); font-size:15.5px; max-width:560px; }
+section{ margin-top:64px; padding-bottom:8px; }
+.sec-head{ display:flex; align-items:baseline; gap:12px; margin-bottom:24px; }
+.sec-num{ font-family:var(--mono); font-size:12px; color:var(--blue-light); }
+.sec-title{ font-family:var(--display); font-weight:600; font-size:21px; letter-spacing:-0.4px; }
+.sec-rule{ flex:1; height:1px; background:linear-gradient(90deg, var(--border), transparent); }
+.card{ background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; transition:border-color .2s; }
+.card:hover{ border-color:#232c40; }
+.hero{ padding:70px 0 50px; display:grid; grid-template-columns:1fr 240px; gap:44px; align-items:center; }
+@media (max-width:760px){ .hero{ grid-template-columns:1fr; padding-top:50px; } .hero-photo{order:-1; margin:0 auto;} }
+.hero-title{ font-family:var(--display); font-weight:700; letter-spacing:-1.3px; font-size:clamp(32px,5vw,48px); line-height:1.08; }
+.hero-cta{ margin-top:26px; display:flex; gap:12px; flex-wrap:wrap; }
+.hero-photo{ position:relative; width:220px; height:260px; border-radius:14px; overflow:hidden; border:1px solid var(--border); background:var(--card); }
+.hero-photo img{ width:100%; height:100%; object-fit:cover; object-position:top center; filter:grayscale(0.25) contrast(1.1) brightness(0.92); }
+.hero-photo::after{ content:''; position:absolute; inset:0; background:linear-gradient(160deg, rgba(59,130,246,0.2), transparent 55%, rgba(34,211,238,0.1)); mix-blend-mode:overlay; }
+.hero-photo::before{ content:''; position:absolute; inset:0; border-radius:14px; box-shadow:inset 0 0 0 1px rgba(59,130,246,0.25); z-index:2; }
+.photo-edit-btn{ position:absolute; bottom:8px; right:8px; z-index:3; background:rgba(7,9,16,0.85); border:1px solid var(--blue); color:var(--blue-light); font-family:var(--body); font-size:11px; padding:5px 10px; border-radius:6px; cursor:pointer; }
+.data-row{ display:flex; gap:28px; flex-wrap:wrap; border-top:1px solid var(--border-soft); padding-top:18px; margin-top:24px; }
+.data-row .label{ font-family:var(--mono); font-size:10px; color:var(--text-faint); letter-spacing:1px; margin-bottom:4px; }
+.data-row .val{ font-size:13px; color:#c7cee0; }
+#skillsGrid, #skillsGridAbout{ display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px; }
+.skill-chip{ background:var(--card); border:1px solid var(--border); border-radius:9px; padding:13px 15px; font-size:13px; font-weight:500; color:var(--text); cursor:pointer; transition:border-color .2s; }
+.skill-chip:hover{ border-color:var(--blue); }
+.skill-chip-top{ display:flex; align-items:center; gap:9px; }
+.skill-chip .ico{ width:6px; height:6px; border-radius:2px; background:var(--blue-light); flex-shrink:0; }
+.skill-chip .arrow{ margin-left:auto; color:var(--text-faint); font-size:11px; transition:transform .2s; }
+.skill-chip.open .arrow{ transform:rotate(90deg); }
+.skill-detail{ display:none; margin-top:10px; padding-top:10px; border-top:1px solid var(--border-soft); color:var(--text-dim); font-size:12.5px; line-height:1.55; }
+.skill-chip.open .skill-detail{ display:block; }
+.proj-images{ display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+.proj-images img{ width:100%; max-width:260px; max-height:170px; object-fit:cover; border-radius:8px; border:1px solid var(--border-soft); }
+.proj-link-btn{ margin-top:14px; }
+.contact-method{ position:relative; cursor:pointer; }
+.contact-options{ display:none; position:absolute; top:calc(100% + 8px); right:0; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:8px; min-width:180px; z-index:30; box-shadow:0 8px 24px rgba(0,0,0,0.4); }
+.contact-options.show{ display:block; }
+.contact-options a{ display:block; padding:9px 12px; border-radius:6px; color:var(--text); font-size:13px; text-decoration:none; transition:background .15s; }
+.contact-options a:hover{ background:var(--bg-2); }
+.social-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:18px; }
+.social-icon{ width:38px; height:38px; border-radius:9px; background:var(--card); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--text-dim); text-decoration:none; transition:border-color .15s, color .15s; }
+.social-icon:hover{ border-color:var(--blue); color:var(--text); }
+.social-icon svg{ width:18px; height:18px; }
+.proj-card{ position:relative; }
+.proj-card::before{ content:''; position:absolute; top:0; left:0; width:2px; height:100%; background:var(--blue); }
+.proj-head{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:space-between; }
+.proj-name-wrap{ display:flex; align-items:center; gap:10px; }
+.proj-name{ font-family:var(--display); font-weight:600; font-size:16px; }
+.proj-tag{ font-family:var(--mono); font-size:10.5px; padding:3px 9px; border-radius:100px; }
+.tag-shipped{ color:var(--green); border:1px solid rgba(52,211,153,0.3); background:rgba(52,211,153,0.08); }
+.tag-progress{ color:var(--amber); border:1px solid rgba(251,191,36,0.3); background:rgba(251,191,36,0.08); }
+.tag-learning{ color:var(--blue-light); border:1px solid rgba(59,130,246,0.3); background:rgba(59,130,246,0.08); }
+.proj-desc{ margin-top:10px; color:var(--text-dim); font-size:14px; max-width:640px; }
+.proj-stack{ margin-top:10px; font-family:var(--mono); font-size:11px; color:var(--text-faint); }
+.about-block{ margin-bottom:16px; }
+.about-block h3{ font-family:var(--display); font-size:15px; font-weight:600; color:var(--blue-light); margin-bottom:8px; }
+.about-block p{ color:var(--text-dim); font-size:14.5px; max-width:680px; }
+.rate-strip{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:22px 26px; }
+.rate-strip .label{ font-family:var(--mono); font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:1px; }
+.rate-strip .val{ font-family:var(--display); font-weight:700; font-size:20px; color:var(--blue-light); margin-top:4px; }
+.overlay{ position:fixed; inset:0; background:rgba(2,3,8,0.78); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; z-index:100; padding:20px; }
+.overlay.show{ display:flex; }
+.modal{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:30px; width:100%; max-width:380px; position:relative; }
+.modal-close{ position:absolute; top:14px; right:14px; background:none; border:none; color:var(--text-faint); font-size:20px; cursor:pointer; }
+.tabs{ display:flex; gap:6px; background:var(--bg-2); border-radius:9px; padding:4px; margin-bottom:20px; }
+.tab-btn{ flex:1; padding:9px; border:none; background:transparent; color:var(--text-dim); font-family:var(--body); font-weight:600; font-size:13px; border-radius:6px; cursor:pointer; transition:.15s; }
+.tab-btn.active{ background:var(--blue); color:#070910; }
+.field{ margin-bottom:14px; }
+.field label{ display:block; font-size:12px; color:var(--text-faint); margin-bottom:6px; font-weight:500; }
+.field input, .field textarea, .field select{ width:100%; background:var(--bg-2); border:1px solid var(--border); border-radius:7px; padding:10px 12px; color:var(--text); font-family:var(--body); font-size:14px; transition:border-color .15s; }
+.field input:focus, .field textarea:focus, .field select:focus{ outline:none; border-color:var(--blue); }
+.form-msg{ font-size:12px; margin-top:10px; min-height:16px; }
+.form-msg.err{ color:var(--red); }
+.form-msg.ok{ color:var(--green); }
+.req-item{ border-bottom:1px solid var(--border-soft); padding:16px 0; }
+.req-item:last-child{ border-bottom:none; }
+.req-top{ display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center; }
+.status-badge{ font-family:var(--mono); font-size:10.5px; padding:3px 10px; border-radius:100px; text-transform:capitalize; }
+.status-pending{ background:rgba(251,191,36,0.1); color:var(--amber); border:1px solid rgba(251,191,36,0.3); }
+.status-accepted{ background:rgba(52,211,153,0.1); color:var(--green); border:1px solid rgba(52,211,153,0.3); }
+.status-declined{ background:rgba(248,113,113,0.1); color:var(--red); border:1px solid rgba(248,113,113,0.3); }
+.req-msg{ color:var(--text-dim); font-size:13.5px; margin-top:8px; }
+.req-meta{ font-family:var(--mono); font-size:11px; color:var(--text-faint); margin-top:8px; }
+select.status-select{ background:var(--bg-2); border:1px solid var(--border); color:var(--text); border-radius:6px; padding:5px 8px; font-size:12px; font-family:var(--body); }
+footer{ padding:60px 0 40px; font-family:var(--body); font-size:13px; color:var(--text-faint); border-top:1px solid var(--border-soft); margin-top:40px; }
+.footer-grid{ display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:32px; }
+@media (max-width:680px){ .footer-grid{ grid-template-columns:1fr; gap:28px; } }
+.footer-col h4{ font-family:var(--display); font-size:13px; color:var(--text-dim); letter-spacing:0.5px; margin-bottom:14px; text-transform:uppercase; }
+.footer-brand{ font-family:var(--display); font-weight:600; font-size:16px; color:var(--text); margin-bottom:8px; }
+.footer-brand span{ color:var(--blue-light); }
+.footer-desc{ color:var(--text-faint); font-size:12.5px; max-width:260px; margin-bottom:14px; }
+.footer-links{ display:flex; flex-direction:column; gap:10px; }
+.footer-links a{ color:var(--text-dim); text-decoration:none; font-size:13px; cursor:pointer; transition:color .15s; }
+.footer-links a:hover{ color:var(--text); }
+.footer-contact{ display:flex; flex-direction:column; gap:8px; font-family:var(--mono); font-size:12.5px; color:var(--text-dim); }
+.footer-bottom{ margin-top:36px; padding-top:20px; border-top:1px solid var(--border-soft); font-family:var(--mono); font-size:11px; color:var(--text-faint); text-align:center; }
+.hidden{ display:none !important; }
+.empty-note{ color:var(--text-faint); font-size:13px; padding:18px 0; text-align:center; }
+
+/* Skeleton shimmer */
+.skeleton{ display:inline-block; border-radius:5px; background:linear-gradient(90deg, var(--border-soft) 25%, var(--border) 37%, var(--border-soft) 63%); background-size:400% 100%; animation:shimmer 1.4s ease infinite; }
+@keyframes shimmer{ 0%{background-position:100% 50%;} 100%{background-position:0 50%;} }
+.skel-text{ height:13px; width:70%; margin:4px 0; }
+.skel-line{ height:13px; width:100%; margin:6px 0; }
+
+/* Project image placeholder */
+.proj-placeholder{ width:100%; max-width:260px; height:120px; border-radius:8px; border:1px dashed var(--border); background:var(--bg-2); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:var(--text-faint); }
+.proj-placeholder svg{ width:24px; height:24px; opacity:0.6; }
+.proj-placeholder span{ font-family:var(--mono); font-size:10.5px; }
+
+/* Scroll to top button */
+#scrollTopBtn{ position:fixed; bottom:24px; right:24px; width:44px; height:44px; border-radius:50%; background:var(--blue); color:#070910; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:18px; box-shadow:0 6px 18px rgba(0,0,0,0.35); opacity:0; transform:translateY(12px); pointer-events:none; transition:opacity .2s, transform .2s; z-index:60; }
+#scrollTopBtn.show{ opacity:1; transform:translateY(0); pointer-events:auto; }
+html[data-theme="light"] #scrollTopBtn{ color:#f5f6f9; }
+
+/* Theme toggle */
+.theme-toggle{ background:transparent; border:1px solid var(--border); color:var(--text-dim); border-radius:7px; width:34px; height:34px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:15px; transition:border-color .15s, color .15s; }
+.theme-toggle:hover{ border-color:var(--blue); color:var(--text); }
+
+/* Typing animation */
+.typed-cursor{ display:inline-block; width:2px; background:var(--blue-light); margin-left:2px; animation:blink 0.9s step-end infinite; }
+@keyframes blink{ 0%,49%{opacity:1;} 50%,100%{opacity:0;} }
+
+/* CV download dropdown */
+.cv-method{ position:relative; display:inline-block; }
+.cv-options{ display:none; position:absolute; top:calc(100% + 8px); left:0; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:8px; min-width:170px; z-index:30; box-shadow:0 8px 24px rgba(0,0,0,0.4); }
+.cv-options.show{ display:block; }
+.cv-options button{ display:block; width:100%; text-align:left; padding:9px 12px; border-radius:6px; color:var(--text); font-size:13px; background:none; border:none; cursor:pointer; transition:background .15s; font-family:var(--body); }
+.cv-options button:hover{ background:var(--bg-2); }
+
+/* Admin reply system */
+.reply-row{ margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; }
+.reply-row input{ flex:1; min-width:180px; background:var(--bg-2); border:1px solid var(--border); border-radius:7px; padding:8px 10px; color:var(--text); font-size:13px; }
+.admin-reply-box{ margin-top:10px; background:var(--bg-2); border:1px solid var(--border-soft); border-radius:8px; padding:10px 12px; font-size:13px; color:var(--text-dim); }
+.admin-reply-box strong{ color:var(--blue-light); font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <span class="logo" data-page="home">RAU<span>.dev</span></span>
+    <div class="nav-links">
+      <a data-page="home">Home</a>
+      <a data-page="projects">Projects</a>
+      <a data-page="about">About</a>
+      <a data-page="contact">Contact</a>
+    </div>
+    <div class="nav-actions" id="navActions"></div>
+    <button class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</button>
+    <button class="menu-toggle" id="menuToggle">☰</button>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a data-page="home">Home</a>
+    <a data-page="projects">Projects</a>
+    <a data-page="about">About</a>
+    <a data-page="contact">Contact</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- ===== HOME PAGE ===== -->
+  <div class="page" id="page-home">
+    <div class="hero">
+      <div>
+        <div class="eyebrow"><span class="dot"></span>SYSTEM.STATUS — ACTIVE</div>
+        <h1 class="hero-title">RAU —<br>Building things that<br>Actually run.</h1>
+        <p id="heroRole" style="margin-top:16px; color:var(--text-dim); font-size:15.5px; max-width:460px; min-height:24px;"><span class="skeleton skel-text" style="width:280px;"></span></p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" data-page="projects">View Projects</a>
+          <a class="btn btn-ghost" data-page="contact">Work With Me</a>
+        </div>
+        <div style="margin-top:28px; margin-bottom:12px; padding:14px 18px; background:var(--card); border:1px solid var(--border); border-radius:10px; display:inline-flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <div>
+            <div style="font-family:var(--display); font-size:13.5px; font-weight:600; color:var(--text);">Stay in the loop</div>
+            <div style="font-family:var(--mono); font-size:11px; color:var(--text-faint); margin-top:2px;">Follow me on my socials and stay updated — tap on your platform below</div>
+          </div>
+        </div>
+        <div id="socialRow" class="social-row"></div>
+        <div class="data-row">
+          <div><div class="label">STACK</div><div class="val">Python · Bash · Kotlin</div></div>
+          <div><div class="label">ENV</div><div class="val">Linux / BlackArch</div></div>
+          <div><div class="label">BASED</div><div class="val">Lahore, PK</div></div>
+        </div>
+      </div>
+      <div class="hero-photo">
+        <img id="profileImg" src="profile.jpeg" alt="RAU.dev">
+      </div>
+    </div>
+
+    <section>
+      <div class="sec-head"><span class="sec-num">01</span><span class="sec-title">What I do</span><span class="sec-rule"></span></div>
+      <div id="skillsGrid"></div>
+    </section>
+
+    <section>
+      <div class="sec-head"><span class="sec-num">02</span><span class="sec-title">Recent work</span><span class="sec-rule"></span></div>
+      <div id="projectsPreview" style="display:flex; flex-direction:column; gap:14px;"></div>
+      <div style="margin-top:18px;"><a class="btn btn-ghost btn-sm" data-page="projects">See all projects →</a></div>
+    </section>
+  </div>
+
+  <!-- ===== PROJECTS PAGE ===== -->
+  <div class="page" id="page-projects">
+    <div class="page-head">
+      <div class="eyebrow"><span class="dot"></span>LOG — PROJECTS</div>
+      <h1 class="page-title">Things I've built</h1>
+      <p class="page-sub">Real projects, tagged by where they actually stand — shipped, in progress, or learning.</p>
+    </div>
+    <section style="margin-top:30px;">
+      <div id="adminAddBar" class="hidden" style="margin-bottom:20px;">
+        <button class="btn btn-primary btn-sm" id="openAddProject">+ Add Project</button>
+      </div>
+      <div id="projectsList"></div>
+    </section>
+  </div>
+
+  <!-- ===== ABOUT PAGE ===== -->
+  <div class="page" id="page-about">
+    <div class="page-head">
+      <div class="eyebrow"><span class="dot"></span>FILE — ABOUT.MD</div>
+      <h1 class="page-title">What I actually do</h1>
+      <p class="page-sub">A closer look at how I work, what I'm good at, and the environment I build in.</p>
+      <div style="margin-top:22px;">
+        <div class="cv-method" id="cvMethod">
+          <button class="btn btn-primary btn-sm" id="cvBtn">⬇ Download CV</button>
+          <div class="cv-options" id="cvOptions">
+            <button id="cvPdfBtn">📄 PDF (.pdf)</button>
+            <button id="cvDocBtn">📝 Word (.doc)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <section style="margin-top:10px;">
+      <div class="card about-block"><h3>Background</h3><p id="aboutText"><span class="skeleton skel-line"></span><span class="skeleton skel-line" style="width:85%;"></span></p></div>
+      <div class="card about-block" style="margin-top:16px;"><h3>What I work on</h3><p id="aboutDetail"><span class="skeleton skel-line"></span><span class="skeleton skel-line" style="width:75%;"></span></p></div>
+    </section>
+    <section>
+      <div class="sec-head"><span class="sec-num">02</span><span class="sec-title">Skills</span><span class="sec-rule"></span></div>
+      <div id="skillsGridAbout"></div>
+    </section>
+    <section>
+      <div id="adminEditAbout" class="hidden">
+        <div class="sec-head"><span class="sec-num">03</span><span class="sec-title">Edit (admin only)</span><span class="sec-rule"></span></div>
+        <div class="card">
+          <div class="field"><label>Background text</label><textarea id="editAbout" rows="4"></textarea></div>
+          <div class="field"><label>What I work on text</label><textarea id="editDetail" rows="4"></textarea></div>
+          <div class="field"><label>Profile photo filename (upload the actual file to GitHub root first, then type its filename here, e.g. profile.jpeg)</label><input type="text" id="editPhoto"></div>
+          <div class="field"><label>Skills (JSON array — each item: {"name":"Python","detail":"what you do with it"})</label><textarea id="editSkills" rows="3"></textarea></div>
+          <div class="sec-head" style="margin:22px 0 14px;"><span class="sec-num">·</span><span class="sec-title">CV Details</span><span class="sec-rule"></span></div>
+          <div class="field"><label>Full name</label><input type="text" id="editFullName"></div>
+          <div class="field"><label>Date of birth</label><input type="text" id="editDOB" placeholder="06 Oct 2004"></div>
+          <div class="field"><label>Nationality</label><input type="text" id="editNationality"></div>
+          <div class="field"><label>Career objective</label><textarea id="editObjective" rows="3"></textarea></div>
+          <div class="field"><label>Education (one entry per line)</label><textarea id="editEducation" rows="3"></textarea></div>
+          <div class="field"><label>Languages</label><input type="text" id="editLanguages" placeholder="English, Urdu"></div>
+          <div class="field"><label>Work experience (leave blank to hide this section on the CV)</label><textarea id="editWorkExp" rows="3"></textarea></div>
+          <div class="field"><label>References</label><input type="text" id="editReferences"></div>
+          <button class="btn btn-primary" id="saveAboutBtn">Save Changes</button>
+          <div class="form-msg" id="saveAboutMsg"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== CONTACT PAGE ===== -->
+  <div class="page" id="page-contact">
+    <div class="page-head">
+      <div class="eyebrow"><span class="dot"></span>CHANNEL — CONTACT</div>
+      <h1 class="page-title">Work with me</h1>
+      <p class="page-sub">Tell me what you need built. I'll get back to you with a clear answer.</p>
+    </div>
+    <section style="margin-top:10px;">
+      <div class="rate-strip">
+        <div><div class="label">Pricing</div><div class="val" id="rateVal"><span class="skeleton skel-text" style="width:90px;height:18px;"></span></div></div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <div class="contact-method" id="phoneMethod">
+            <span class="btn btn-ghost btn-sm">📞 Phone</span>
+            <div class="contact-options" id="phoneOptions"></div>
+          </div>
+          <div class="contact-method" id="emailMethod">
+            <span class="btn btn-ghost btn-sm">✉️ Email</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="adminEditSocial" class="hidden">
+      <div class="sec-head"><span class="sec-num">·</span><span class="sec-title">Edit Contact & Social (admin only)</span><span class="sec-rule"></span></div>
+      <div class="card">
+        <div class="field"><label>Phone number (with country code, e.g. +923160424173)</label><input type="text" id="editPhone"></div>
+        <div class="field"><label>Contact email</label><input type="text" id="editEmail"></div>
+        <div class="field"><label>Pricing (shown on Contact page + CV)</label><input type="text" id="editRate" placeholder="Let's discuss based on your project"></div>
+        <div class="field"><label>Social links (one per line, just paste full URLs)</label><textarea id="editSocial" rows="5" placeholder="https://github.com/RAU-dev&#10;https://instagram.com/yourname&#10;https://linkedin.com/in/yourname"></textarea></div>
+        <button class="btn btn-primary" id="saveSocialBtn">Save Changes</button>
+        <div class="form-msg" id="saveSocialMsg"></div>
+      </div>
+    </section>
+    <section id="loggedOutMsg" class="hidden">
+      <div class="card" style="text-align:center; padding:40px;">
+        <p style="color:var(--text-dim); margin-bottom:18px;">Sign up or log in to send a request.</p>
+        <button class="btn btn-primary" id="ctaSignup">Sign Up / Log In</button>
+      </div>
+    </section>
+    <section id="clientView" class="hidden">
+      <div class="sec-head"><span class="sec-num">01</span><span class="sec-title">New Request</span><span class="sec-rule"></span></div>
+      <div class="card">
+        <div class="field"><label>What do you need built?</label><textarea id="reqMessage" rows="4"></textarea></div>
+        <div class="field"><label>Budget (optional)</label><input id="reqBudget" type="text"></div>
+        <button class="btn btn-primary" id="submitReqBtn">Submit Request</button>
+        <div class="form-msg" id="reqMsg"></div>
+      </div>
+      <div class="sec-head" style="margin-top:40px;"><span class="sec-num">02</span><span class="sec-title">My Requests</span><span class="sec-rule"></span></div>
+      <div class="card" id="myReqsList"><div class="empty-note">No requests yet.</div></div>
+    </section>
+    <section id="adminView" class="hidden">
+      <div class="sec-head"><span class="sec-num">01</span><span class="sec-title">Incoming Requests</span><span class="sec-rule"></span></div>
+      <div class="card" id="allReqsList"><div class="empty-note">No requests yet.</div></div>
+    </section>
+  </div>
+
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="footer-brand">RAU<span>.dev</span></div>
+        <p class="footer-desc">Python & Bash automation, AI tooling, and Android development — based in Lahore, Pakistan.</p>
+        <div id="footerSocialRow" class="social-row"></div>
+      </div>
+      <div class="footer-col">
+        <h4>Navigate</h4>
+        <div class="footer-links">
+          <a data-page="home">Home</a>
+          <a data-page="projects">Projects</a>
+          <a data-page="about">About</a>
+          <a data-page="contact">Contact</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <div class="footer-contact">
+          <span id="footerEmail"></span>
+          <span id="footerPhone"></span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">RAU.dev · Lahore, Pakistan · built 2026</div>
+  </footer>
+</div>
+
+<button id="scrollTopBtn" title="Back to top">↑</button>
+
+<!-- Auth modal -->
+<div class="overlay" id="authOverlay">
+  <div class="modal">
+    <button class="modal-close" id="closeModal">&times;</button>
+    <div class="tabs">
+      <button class="tab-btn active" data-form="login">Log In</button>
+      <button class="tab-btn" data-form="signup">Sign Up</button>
+    </div>
+    <form id="loginForm">
+      <div class="field"><label>Email</label><input type="email" id="loginEmail" required></div>
+      <div class="field"><label>Password</label><input type="password" id="loginPassword" required></div>
+      <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Log In</button>
+      <div class="form-msg" id="loginMsg"></div>
+    </form>
+    <form id="signupForm" class="hidden">
+      <div class="field"><label>Full Name</label><input type="text" id="signupName" required></div>
+      <div class="field"><label>Email</label><input type="email" id="signupEmail" required></div>
+      <div class="field"><label>Password</label><input type="password" id="signupPassword" required minlength="6"></div>
+      <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Create Account</button>
+      <div class="form-msg" id="signupMsg"></div>
+    </form>
+  </div>
+</div>
+
+<!-- Add/Edit project modal -->
+<div class="overlay" id="projectOverlay">
+  <div class="modal" style="max-width:440px;">
+    <button class="modal-close" id="closeProjectModal">&times;</button>
+    <h3 style="font-family:var(--display); font-size:17px; margin-bottom:18px;" id="projectModalTitle">Add Project</h3>
+    <div class="field"><label>Name</label><input type="text" id="pName"></div>
+    <div class="field"><label>Status</label>
+      <select id="pTag"><option value="shipped">Shipped</option><option value="progress">In Progress</option><option value="learning">Learning</option></select>
+    </div>
+    <div class="field"><label>Description</label><textarea id="pDesc" rows="3"></textarea></div>
+    <div class="field"><label>Tech Stack (comma separated)</label><input type="text" id="pStack" placeholder="Python, Linux, Bash"></div>
+    <div class="field"><label>Tool Link (URL to GitHub repo / live tool)</label><input type="text" id="pLink" placeholder="https://github.com/RAU-dev/spectral"></div>
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-primary" id="saveProjectBtn" style="flex:1; justify-content:center;">Save</button>
+      <button class="btn btn-danger hidden" id="deleteProjectBtn">Delete</button>
+    </div>
+    <div class="form-msg" id="projectMsg"></div>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+const SUPABASE_URL = 'https://zeykmsxqtbdaufjhntmn.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_UG7GXen195zGHmt1l5tLYg_1IMaakqs';
+const ADMIN_EMAIL = 'rau.development.official@gmail.com';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+function isAdmin(){ return currentUser && currentUser.email === ADMIN_EMAIL; }
+
+const DEFAULTS = {
+  hero_role: "Python & Bash Automation Developer · AI Tooling · Android (Kotlin)",
+  about_text: "I am a self-taught developer based in Lahore, Pakistan, working primarily on Linux. I started from zero in 2022 and have spent every year since building real, working tools.",
+  about_detail: "I work across automation scripting, AI-integrated tooling, Android development, and Linux system-level work. I focus on shipping things that actually run in production, not demos.",
+  rate: "Let's discuss based on your project",
+  profile_image_url: "profile.jpeg",
+  contact_phone: "+923160424173",
+  contact_email: "rau.development.official@gmail.com",
+  social_links: "https://github.com/RAU-dev",
+  cv_full_name: "Rana Ahmad Umar",
+  cv_dob: "06 Oct 2004",
+  cv_nationality: "Pakistani",
+  cv_objective: "Self-taught Python & Bash automation developer focused on AI-integrated tooling and Android development. Looking to take on freelance projects where I can ship real, production-ready software rather than demos — automation scripts, AI-powered utilities, and native Android apps.",
+  cv_education: "Matriculation in Science\nIntermediate in Computer Science (I.C.S)",
+  cv_languages: "English, Urdu",
+  cv_work_experience: "",
+  cv_references: "Available on request",
+  skills_json: JSON.stringify([
+    {name:"Python", detail:"Automation scripts, OSINT tooling, API integration, backend logic for tools like Spectral and the Phone Footprint Audit Tool."},
+    {name:"Bash / Shell", detail:"Linux automation, system scripting, BlackArch tooling, process orchestration."},
+    {name:"Linux (BlackArch)", detail:"Day-to-day dev environment, network auditing, penetration-testing-adjacent tooling."},
+    {name:"AI Automation", detail:"Integrating AI APIs into tools and workflows, building AI-assisted utilities."},
+    {name:"Android / Kotlin", detail:"Native Android apps, e.g. Game Booster using Shizuku for ADB-level access."},
+    {name:"Jetpack Compose", detail:"Modern declarative UI for Android apps."},
+    {name:"API Integration", detail:"Connecting tools to third-party and AI APIs, handling auth, rate limits, and data parsing."},
+    {name:"Automation Scripting", detail:"End-to-end scripts that remove manual repetitive work — from data collection to reporting."}
+  ]),
+  projects_json: JSON.stringify([
+    {name:"Spectral", tag:"shipped", desc:"Modular Python framework for WiFi network auditing on BlackArch — scanning, handshake capture, WPA3 detection, automated reporting.", stack:"Python · Linux · Network Scripting", link:""},
+    {name:"Game Booster", tag:"progress", desc:"Android performance app inspired by RedMagic GameBoost, using Shizuku for ADB-level access. Built for Play Store with freemium monetization.", stack:"Kotlin · Jetpack Compose · Shizuku", link:""},
+    {name:"Phone Footprint Audit Tool", tag:"shipped", desc:"Python OSINT script for auditing phone number digital footprints, built for legitimate recon and data-aggregation analysis.", stack:"Python · OSINT · BlackArch", link:""}
+  ])
+};
+const TAG_LABEL = { shipped:'shipped', progress:'in progress', learning:'learning' };
+let contentCache = {...DEFAULTS};
+let projectsCache = [];
+let editingIndex = null;
+
+/* ===== Page routing ===== */
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.nav-links a, .mobile-menu a').forEach(a => a.classList.toggle('active', a.dataset.page===name));
+  window.location.hash = name;
+  window.scrollTo(0,0);
+  document.getElementById('mobileMenu').classList.remove('show');
+}
+document.querySelectorAll('[data-page]').forEach(el => {
+  el.addEventListener('click', () => showPage(el.dataset.page));
+});
+document.getElementById('menuToggle').onclick = (e) => {
+  e.stopPropagation();
+  document.getElementById('mobileMenu').classList.toggle('show');
+};
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('mobileMenu');
+  const toggle = document.getElementById('menuToggle');
+  if(menu.classList.contains('show') && !menu.contains(e.target) && !toggle.contains(e.target)){
+    menu.classList.remove('show');
+  }
+});
+function routeFromHash(){
+  const valid = ['home','projects','about','contact'];
+  const h = window.location.hash.replace('#','');
+  showPage(valid.includes(h) ? h : 'home');
+}
+window.addEventListener('hashchange', routeFromHash);
+routeFromHash();
+
+/* ===== Dark / Light theme toggle ===== */
+const THEME_KEY = 'rau_theme';
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('themeToggle').textContent = theme === 'light' ? '☀️' : '🌙';
+  localStorage.setItem(THEME_KEY, theme);
+}
+applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
+document.getElementById('themeToggle').onclick = () => {
+  const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  applyTheme(current === 'light' ? 'dark' : 'light');
+};
+
+/* ===== Scroll to top ===== */
+const scrollTopBtn = document.getElementById('scrollTopBtn');
+window.addEventListener('scroll', () => {
+  scrollTopBtn.classList.toggle('show', window.scrollY > 420);
+});
+scrollTopBtn.onclick = () => window.scrollTo({ top:0, behavior:'smooth' });
+
+/* ===== Typing animation (hero tagline) ===== */
+function startTypingLoop(el, text){
+  if(!el || !text) return;
+  if(el._typingActive && el._typingText === text) return;
+  el._typingActive = true;
+  el._typingText = text;
+  el.innerHTML = '<span class="typed-text"></span><span class="typed-cursor"></span>';
+  const span = el.querySelector('.typed-text');
+  let i = 0, deleting = false;
+  function tick(){
+    if(el._typingText !== text) return; // text changed elsewhere, stop this loop
+    if(!deleting){
+      i++;
+      span.textContent = text.slice(0, i);
+      if(i >= text.length){ deleting = false; setTimeout(()=>{ deleting = true; tick(); }, 2200); return; }
+      setTimeout(tick, 38);
+    } else {
+      i--;
+      span.textContent = text.slice(0, i);
+      if(i <= 0){ deleting = false; setTimeout(tick, 500); return; }
+      setTimeout(tick, 22);
+    }
+  }
+  setTimeout(tick, 38);
+}
+
+/* ===== Auth modal ===== */
+const authOverlay = document.getElementById('authOverlay');
+function switchForm(name){
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.form===name));
+  document.getElementById('loginForm').classList.toggle('hidden', name!=='login');
+  document.getElementById('signupForm').classList.toggle('hidden', name!=='signup');
+}
+document.querySelectorAll('.tab-btn').forEach(btn => { btn.onclick = () => switchForm(btn.dataset.form); });
+document.getElementById('closeModal').onclick = () => authOverlay.classList.remove('show');
+function openAuthModal(form){ switchForm(form||'login'); authOverlay.classList.add('show'); }
+document.getElementById('ctaSignup').onclick = () => openAuthModal('signup');
+
+/* ===== CV Download (PDF / Word) ===== */
+const cvBtn = document.getElementById('cvBtn');
+const cvOptions = document.getElementById('cvOptions');
+cvBtn.onclick = (e) => { e.stopPropagation(); cvOptions.classList.toggle('show'); };
+document.addEventListener('click', (e) => {
+  if(!document.getElementById('cvMethod').contains(e.target)) cvOptions.classList.remove('show');
+});
+function cvData(){
+  let skills = [];
+  try{ skills = JSON.parse(contentCache.skills_json).map(s => typeof s === 'string' ? s : s.name); }catch(e){}
+  return {
+    name: contentCache.cv_full_name || 'Rana Ahmad Umar',
+    dob: contentCache.cv_dob || '',
+    nationality: contentCache.cv_nationality || '',
+    role: contentCache.hero_role || '',
+    objective: contentCache.cv_objective || '',
+    education: (contentCache.cv_education || '').split('\n').map(s=>s.trim()).filter(Boolean),
+    about: contentCache.about_text || '',
+    detail: contentCache.about_detail || '',
+    skills,
+    workExperience: (contentCache.cv_work_experience || '').trim(),
+    languages: contentCache.cv_languages || '',
+    references: contentCache.cv_references || '',
+    projects: projectsCache || [],
+    email: contentCache.contact_email || '',
+    phone: contentCache.contact_phone || '',
+    rate: contentCache.rate || ''
+  };
+}
+document.getElementById('cvPdfBtn').onclick = () => {
+  cvOptions.classList.remove('show');
+  const d = cvData();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'pt', format:'a4' });
+  const margin = 50; let y = 60;
+  doc.setFont('helvetica','bold'); doc.setFontSize(22); doc.text(d.name, margin, y); y += 22;
+  doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.setTextColor(90);
+  doc.text(doc.splitTextToSize(d.role, 495), margin, y); y += 20;
+  doc.setTextColor(0); doc.setFontSize(10);
+  doc.text(`${d.dob ? 'DOB: '+d.dob+'   ' : ''}${d.nationality ? d.nationality : ''}`, margin, y); y += 16;
+  doc.text(`${d.email}   ${d.phone}   ${d.rate ? 'Pricing: '+d.rate : ''}`, margin, y); y += 22;
+  doc.setDrawColor(200); doc.line(margin, y, 545, y); y += 22;
+  function heading(t){ doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.text(t, margin, y); y += 18; doc.setFont('helvetica','normal'); doc.setFontSize(10.5); }
+  if(d.objective){
+    heading('Objective');
+    const lines = doc.splitTextToSize(d.objective, 495);
+    doc.text(lines, margin, y); y += lines.length * 14 + 18;
+  }
+  if(d.education.length){
+    heading('Education');
+    d.education.forEach(line => { doc.text(line, margin, y); y += 14; });
+    y += 8;
+  }
+  heading('Background');
+  doc.text(doc.splitTextToSize(d.about, 495), margin, y); y += doc.splitTextToSize(d.about, 495).length * 14 + 18;
+  heading('What I work on');
+  doc.text(doc.splitTextToSize(d.detail, 495), margin, y); y += doc.splitTextToSize(d.detail, 495).length * 14 + 18;
+  heading('Skills');
+  doc.text(doc.splitTextToSize(d.skills.join('  ·  '), 495), margin, y); y += doc.splitTextToSize(d.skills.join('  ·  '), 495).length * 14 + 18;
+  if(d.workExperience){
+    heading('Work Experience');
+    const lines = doc.splitTextToSize(d.workExperience, 495);
+    doc.text(lines, margin, y); y += lines.length * 14 + 18;
+  }
+  heading('Projects');
+  d.projects.forEach(p => {
+    doc.setFont('helvetica','bold'); doc.setFontSize(10.5); doc.text(`${p.name}  (${p.tag})`, margin, y); y += 14;
+    doc.setFont('helvetica','normal');
+    const lines = doc.splitTextToSize(p.desc + (p.stack ? '  —  ' + p.stack : ''), 495);
+    doc.text(lines, margin, y); y += lines.length * 13 + 10;
+  });
+  if(d.languages){ heading('Languages'); doc.text(d.languages, margin, y); y += 22; }
+  if(d.references){ heading('References'); doc.text(d.references, margin, y); y += 18; }
+  doc.save(d.name.replace(/\s+/g,'-') + '-CV.pdf');
+};
+document.getElementById('cvDocBtn').onclick = () => {
+  cvOptions.classList.remove('show');
+  const d = cvData();
+  const projectsHtml = d.projects.map(p => `<p><b>${p.name}</b> (${p.tag})<br>${p.desc}${p.stack ? ' — <i>'+p.stack+'</i>' : ''}</p>`).join('');
+  const eduHtml = d.education.map(e => `<p style="margin:2px 0;">${e}</p>`).join('');
+  const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+  <head><meta charset="utf-8"><title>${d.name} CV</title></head>
+  <body style="font-family:Calibri, Arial, sans-serif;">
+    <h1 style="margin-bottom:2px;">${d.name}</h1>
+    <p style="color:#555; margin-top:0;">${d.role}</p>
+    <p style="font-size:11pt;">${d.dob ? 'DOB: '+d.dob+' &nbsp;|&nbsp; ' : ''}${d.nationality || ''}</p>
+    <p style="font-size:11pt;">${d.email} &nbsp;|&nbsp; ${d.phone} &nbsp;|&nbsp; ${d.rate ? 'Pricing: '+d.rate : ''}</p>
+    <hr>
+    ${d.objective ? `<h2>Objective</h2><p>${d.objective}</p>` : ''}
+    ${eduHtml ? `<h2>Education</h2>${eduHtml}` : ''}
+    <h2>Background</h2><p>${d.about}</p>
+    <h2>What I work on</h2><p>${d.detail}</p>
+    <h2>Skills</h2><p>${d.skills.join(' &middot; ')}</p>
+    ${d.workExperience ? `<h2>Work Experience</h2><p>${d.workExperience}</p>` : ''}
+    <h2>Projects</h2>${projectsHtml}
+    ${d.languages ? `<h2>Languages</h2><p>${d.languages}</p>` : ''}
+    ${d.references ? `<h2>References</h2><p>${d.references}</p>` : ''}
+  </body></html>`;
+  const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = d.name.replace(/\s+/g,'-') + '-CV.doc';
+  document.body.appendChild(link); link.click(); link.remove();
+};
+
+document.getElementById('signupForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name = document.getElementById('signupName').value;
+  const email = document.getElementById('signupEmail').value;
+  const password = document.getElementById('signupPassword').value;
+  const msg = document.getElementById('signupMsg');
+  msg.textContent = 'Creating account...'; msg.className='form-msg';
+  const { error } = await supabase.auth.signUp({ email, password, options:{ data:{ full_name:name } } });
+  if(error){ msg.textContent = error.message; msg.className='form-msg err'; return; }
+  msg.textContent = 'Account created!'; msg.className='form-msg ok';
+  setTimeout(()=>authOverlay.classList.remove('show'), 1000);
+});
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  const msg = document.getElementById('loginMsg');
+  msg.textContent = 'Logging in...'; msg.className='form-msg';
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if(error){ msg.textContent = error.message; msg.className='form-msg err'; return; }
+  authOverlay.classList.remove('show');
+});
+
+supabase.auth.onAuthStateChange((event, session) => {
+  currentUser = session?.user || null;
+  renderAll();
+});
+
+/* ===== Nav auth state ===== */
+function renderNav(){
+  const navActions = document.getElementById('navActions');
+  if(currentUser){
+    const label = isAdmin() ? 'Admin' : currentUser.email.split('@')[0];
+    navActions.innerHTML = `<span style="color:var(--text-dim); font-size:13px;">${label}</span><button class="btn btn-danger btn-sm" id="logoutBtn">Log Out</button>`;
+    document.getElementById('logoutBtn').onclick = async () => { await supabase.auth.signOut(); };
+  } else {
+    navActions.innerHTML = `<button class="btn btn-ghost btn-sm" id="loginBtn">Log In</button><button class="btn btn-primary btn-sm" id="signupBtn">Sign Up</button>`;
+    document.getElementById('loginBtn').onclick = () => openAuthModal('login');
+    document.getElementById('signupBtn').onclick = () => openAuthModal('signup');
+  }
+}
+
+/* ===== Load site content ===== */
+async function loadSiteContent(){
+  let content = {...DEFAULTS};
+  try{
+    const { data, error } = await supabase.from('site_content').select('key,value');
+    if(!error && data){ data.forEach(row => content[row.key] = row.value); }
+  }catch(e){}
+  return content;
+}
+
+function slugify(name){ return name.toLowerCase().replace(/[^a-z0-9]+/g,''); }
+
+const SOCIAL_ICONS = {
+  github: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.55 0-.27-.01-1.17-.02-2.12-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.7 1.25 3.35.96.1-.74.39-1.25.71-1.54-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.21-1.49 3.18-1.18 3.18-1.18.62 1.58.23 2.75.11 3.04.73.81 1.18 1.84 1.18 3.1 0 4.43-2.7 5.41-5.27 5.69.41.36.78 1.07.78 2.15 0 1.56-.01 2.81-.02 3.19 0 .31.21.66.79.55A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>',
+  linkedin: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56z"/></svg>',
+  instagram: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 3.25.15 4.77 1.69 4.92 4.92.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.15 3.23-1.66 4.77-4.92 4.92-1.27.06-1.64.07-4.85.07s-3.58-.01-4.85-.07c-3.26-.15-4.77-1.7-4.92-4.92-.06-1.27-.07-1.65-.07-4.85s.01-3.58.07-4.85C2.36 3.92 3.88 2.38 7.15 2.23 8.42 2.17 8.8 2.16 12 2.16zM12 0C8.74 0 8.33.01 7.05.07 2.7.27.27 2.69.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.2 4.36 2.62 6.78 6.98 6.98C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c4.35-.2 6.78-2.62 6.98-6.98.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.2-4.35-2.62-6.78-6.98-6.98C15.67.01 15.26 0 12 0zm0 5.84A6.16 6.16 0 1 0 18.16 12 6.16 6.16 0 0 0 12 5.84zm0 10.16A4 4 0 1 1 16 12a4 4 0 0 1-4 4zm6.4-10.85a1.44 1.44 0 1 0 0 2.88 1.44 1.44 0 0 0 0-2.88z"/></svg>',
+  twitter: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.95 4.57a10 10 0 0 1-2.82.78 4.96 4.96 0 0 0 2.16-2.72c-.95.55-2 .96-3.12 1.18a4.92 4.92 0 0 0-8.39 4.48 13.94 13.94 0 0 1-10.1-5.13 4.92 4.92 0 0 0 1.52 6.57 4.9 4.9 0 0 1-2.22-.61c0 2.39 1.7 4.38 3.95 4.83a4.93 4.93 0 0 1-2.22.08 4.93 4.93 0 0 0 4.6 3.42 9.87 9.87 0 0 1-6.1 2.1 9.7 9.7 0 0 1-1.17-.07 13.94 13.94 0 0 0 7.55 2.21c9.05 0 14-7.5 14-14 0-.21 0-.42-.02-.63A10 10 0 0 0 24 4.59z"/></svg>',
+  facebook: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.99 3.66 9.13 8.44 9.88v-7H7.9v-2.88h2.54V9.79c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.24.2 2.24.2v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.87h2.78l-.45 2.88h-2.33v7C18.34 21.13 22 16.99 22 12z"/></svg>',
+  youtube: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2s-.23-1.64-.94-2.36c-.9-.95-1.9-.95-2.36-1C16.94 2.5 12 2.5 12 2.5h-.01s-4.93 0-8.2.34c-.46.05-1.46.05-2.36 1C.72 4.56.5 6.2.5 6.2S.27 8.13.27 10.06v1.87c0 1.93.23 3.86.23 3.86s.23 1.64.94 2.36c.9.95 2.08.92 2.6 1.02 1.9.18 8.06.34 8.06.34s4.94-.01 8.21-.35c.46-.05 1.46-.05 2.36-1 .71-.72.94-2.36.94-2.36s.23-1.93.23-3.86v-1.87c0-1.93-.23-3.86-.23-3.86zM9.75 14.6V7.9l6.5 3.35z"/></svg>',
+  whatsapp: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.15-1.7-.85-2-.95-.27-.1-.46-.15-.66.15-.2.3-.75.95-.92 1.15-.17.2-.34.22-.63.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.65-2.05-.17-.3-.02-.46.13-.61.15-.15.3-.34.45-.5.15-.18.2-.3.3-.5.1-.2.05-.36-.03-.51-.08-.15-.65-1.56-.9-2.14-.2-.46-.4-.4-.55-.4-.15 0-.32 0-.5 0-.17 0-.45.07-.68.32-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.6.13.18 1.78 2.84 4.42 3.87 2.65 1.03 2.65.69 3.13.65.47-.05 1.53-.62 1.75-1.22.22-.6.22-1.1.15-1.22-.07-.12-.27-.2-.57-.34zM12 .5C5.66.5.5 5.66.5 12c0 2.1.56 4.07 1.55 5.77L.5 23.5l5.9-1.55A11.46 11.46 0 0 0 12 23.5c6.34 0 11.5-5.16 11.5-11.5S18.34.5 12 .5zm0 20.95c-1.95 0-3.76-.57-5.28-1.55l-.38-.24-3.5.92.94-3.42-.25-.4A9.45 9.45 0 0 1 2.55 12c0-5.22 4.24-9.45 9.45-9.45S21.45 6.78 21.45 12 17.22 21.45 12 21.45z"/></svg>',
+  tiktok: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/></svg>',
+  telegram: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.94 8.19-1.97 9.28c-.14.65-.52.81-1.05.5l-2.9-2.14-1.4 1.35c-.15.15-.28.28-.58.28l.2-2.95 5.3-4.79c.23-.2-.05-.32-.36-.12L6.55 14.4l-2.85-.89c-.62-.19-.63-.62.13-.92l11.14-4.3c.51-.19.96.12.97.9z"/></svg>',
+  discord: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.32 4.37A19.79 19.79 0 0 0 15.43 3c-.21.38-.46.9-.63 1.3a18.27 18.27 0 0 0-5.6 0C9.03 3.9 8.77 3.38 8.56 3a19.74 19.74 0 0 0-4.9 1.38C.53 8.8-.32 13.1.1 17.35a20 20 0 0 0 6.07 3.07c.49-.66.93-1.37 1.3-2.1a12.93 12.93 0 0 1-2.04-.98c.17-.12.34-.25.5-.38a14.24 14.24 0 0 0 12.14 0c.16.13.33.26.5.38-.65.38-1.33.7-2.05.98.37.73.8 1.44 1.3 2.1a19.93 19.93 0 0 0 6.08-3.08c.5-5-.85-9.25-3.58-13zm-12.13 10.5c-1.21 0-2.2-1.1-2.2-2.46s.97-2.46 2.2-2.46c1.22 0 2.22 1.1 2.2 2.46 0 1.36-.97 2.46-2.2 2.46zm8.14 0c-1.21 0-2.2-1.1-2.2-2.46s.97-2.46 2.2-2.46c1.23 0 2.22 1.1 2.2 2.46 0 1.36-.96 2.46-2.2 2.46z"/></svg>',
+  snapchat: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.017 0C8.47 0 7.37.01 6.25.07 3.29.21 1.22 2.28 1.08 5.24.02 6.36 0 7.46 0 11.01s.02 4.65.08 5.77c.14 2.96 2.2 5.03 5.17 5.17 1.12.06 2.22.08 5.77.08s4.65-.02 5.77-.08c2.96-.14 5.03-2.2 5.17-5.17.06-1.12.08-2.22.08-5.77s-.02-4.65-.08-5.77C21.82 2.27 19.76.21 16.8.07 15.67.01 14.57 0 12.017 0zm-.017 3c1.47 0 4.27.07 5.41.59 1.5.67 2.33 1.78 2.33 3.41 0 2.2-1.18 3.71-3.13 4.11.2.33.3.7.3 1.09 0 .77-.3 1.44-.83 1.96.29.12.59.2.89.2.54 0 .97.43.97.97s-.43.97-.97.97c-.77 0-1.38-.13-2.22-.44-.84.31-1.45.44-2.75.44s-1.91-.13-2.75-.44c-.84.31-1.45.44-2.22.44-.54 0-.97-.43-.97-.97s.43-.97.97-.97c.3 0 .6-.08.89-.2-.53-.52-.83-1.19-.83-1.96 0-.39.1-.76.3-1.09C6.39 10.71 5.2 9.2 5.2 7c0-1.63.83-2.74 2.33-3.41C8.67 3.07 10.53 3 12 3z"/></svg>',
+  pinterest: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.08 3.16 9.43 7.63 11.17-.1-.95-.2-2.41.04-3.45.22-.93 1.47-6.24 1.47-6.24s-.38-.75-.38-1.86c0-1.74 1.01-3.05 2.27-3.05 1.07 0 1.59.8 1.59 1.77 0 1.08-.69 2.69-1.04 4.18-.3 1.25.61 2.26 1.83 2.26 2.2 0 3.68-2.84 3.68-6.2 0-2.55-1.72-4.34-4.18-4.34-2.85 0-4.52 2.13-4.52 4.34 0 .86.33 1.78.74 2.28a.3.3 0 0 1 .07.28c-.08.31-.25 1-.28 1.13-.04.18-.14.22-.32.13-1.24-.58-2.02-2.4-2.02-3.86 0-3.14 2.28-6.02 6.58-6.02 3.45 0 6.14 2.46 6.14 5.74 0 3.42-2.16 6.18-5.15 6.18-1.01 0-1.95-.52-2.27-1.14l-.62 2.3c-.22.86-.82 1.94-1.23 2.6.93.29 1.91.44 2.93.44 6.63 0 12-5.37 12-12S18.63 0 12 0z"/></svg>',
+  reddit: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.74c.69 0 1.25.56 1.25 1.25a1.25 1.25 0 0 1-2.5 0c0-.69.56-1.25 1.25-1.25zm-9.52 1.54h.01c.76 0 1.37.6 1.38 1.36v.01c0 .76-.61 1.37-1.37 1.37-.76 0-1.37-.61-1.37-1.37 0-.76.6-1.37 1.35-1.37zM12 6.9c2.66 0 5.13.99 6.98 2.63.44-.39 1-.63 1.63-.63 1.38 0 2.5 1.12 2.5 2.5 0 .97-.56 1.82-1.37 2.24.06.3.09.6.09.91 0 3.84-4.48 6.96-10 6.96-5.52 0-10-3.12-10-6.96 0-.32.03-.63.1-.94a2.5 2.5 0 0 1-1.38-2.21 2.5 2.5 0 0 1 2.5-2.5c.63 0 1.2.24 1.64.63A12.03 12.03 0 0 1 12 6.9zm-3.37 5.17c-.76 0-1.37.61-1.37 1.37 0 .76.61 1.37 1.37 1.37.76 0 1.37-.61 1.37-1.37 0-.76-.61-1.37-1.37-1.37zm6.74 0c-.76 0-1.37.61-1.37 1.37 0 .76.61 1.37 1.37 1.37.76 0 1.37-.61 1.37-1.37 0-.76-.61-1.37-1.37-1.37zm-6.07 4.5c-.21 0-.4.08-.55.23-.14.14-.22.34-.21.54.06 1.3 1.7 2.3 3.46 2.3 1.76 0 3.4-1 3.46-2.3a.77.77 0 0 0-.22-.54.77.77 0 0 0-.54-.23H9.3z"/></svg>',
+  twitch: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.57 1.5 3 8.36V20.5h4.5V24l3.5-3.5H14l6-6V1.5H11.57zM18.5 13.5 16 16h-3.5l-3 3v-3H6V3.5h12.5v10z"/><path d="M15.5 6.5h1.5v4.5H15.5zm-4 0h1.5v4.5H11.5z"/></svg>',
+  threads: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.587 1.474 12.01v-.017c.03-3.579.885-6.43 2.548-8.482C5.865 1.205 8.617.024 12.198 0h.014c2.745.02 5.092.816 6.97 2.366 1.811 1.495 2.963 3.58 3.426 6.196l-2.51.482c-.78-4.283-3.382-6.568-7.89-6.59-2.941.019-5.17.904-6.62 2.628C4.19 6.67 3.49 9.07 3.468 12c.024 2.94.725 5.34 2.087 7.131 1.44 1.861 3.671 2.812 6.629 2.828 2.515-.016 4.265-.716 5.354-2.136.997-1.305 1.332-3.05 1.006-5.23-.28-1.896-1.267-3.35-2.8-4.13-1.118-.567-2.466-.873-3.888-.914-.19 3.06-1.247 5.144-3.146 6.2-1.234.685-2.735.84-4.28.447C3.17 15.706 2 14.35 1.768 12.663c-.294-2.153.944-4.367 2.99-5.358 1.768-.845 3.868-.99 6.16-.435.185.044.37.094.554.147-.077-.53-.108-1.046-.092-1.538l.01-.362.354-.073c.405-.082.82-.14 1.236-.17l.393-.025-.04.39c-.054.532-.044 1.112.03 1.726.16-.024.315-.044.467-.057 1.784-.172 3.43.17 4.888.963 1.94 1.054 3.197 2.805 3.59 4.946.473 2.581.033 4.762-1.28 6.44-1.432 1.836-3.68 2.77-6.852 2.792zm-1.19-9.718c-.25.001-.505.017-.76.049.093.646.337 1.124.72 1.416.45.34 1.113.457 1.974.35 1.197-.153 2.033-.7 2.486-1.634.313-.645.418-1.42.316-2.31a7.657 7.657 0 0 0-.375-.09c-1.84-.388-3.337-.097-4.361.219zm-2.428 5.25c.97.275 1.878.177 2.702-.29.93-.523 1.588-1.505 1.963-2.927-.262.024-.527.04-.791.05-.8.03-1.536-.013-2.19-.127-.62 1.039-.944 2.132-.97 3.16l.005.065c.093.025.187.048.281.07z"/></svg>',
+  fiverr: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.004 15.588a.995.995 0 1 0 .002-1.99.995.995 0 0 0-.002 1.99zm-.996-3.705h-1.39c-.283 0-.379.186-.379.49v4.748h-1.838v-4.748c0-.28-.096-.49-.382-.49h-.604v-1.654h.604c.189 0 .287-.09.287-.284V9.57c0-1.264.688-1.976 2.034-1.976h1.668v1.654H21.23c-.379 0-.567.19-.567.567v.15c0 .282.096.377.378.377h1.97v1.511zm-6.524 1.418v.498c0 1.01-.537 1.546-1.513 1.546-.479 0-.766-.227-.766-.717 0-.5.287-.716.9-.791l1.379-.136v-.4zm1.754 3.82h-1.622l-.132-.633c-.455.5-1.05.738-1.812.738-1.187 0-1.907-.738-1.907-1.926 0-1.358.833-2.013 2.52-2.013l1.2-.097v-.25c0-.527-.266-.733-.87-.733-.566 0-.87.17-.929.567h-1.697c.12-1.32 1.05-1.944 2.682-1.944 1.8 0 2.567.756 2.567 2.172v3.12zm-8.032 0H7.374v-4.748c0-.28-.096-.49-.38-.49h-.568v-1.654h.568c.956 0 1.59.435 1.683 1.266.416-.87 1.11-1.266 2.07-1.266h.72v1.77h-.907c-.89 0-1.35.47-1.35 1.396v3.726zM5.604 9.493H3.766V7.676h1.838v1.817zm0 6.923H3.766v-5.98h1.838v5.98zM24 5.508v13.021C24 20.985 21.97 23 19.461 23H4.539C2.03 23 0 21.007 0 18.529V5.508C0 3.015 2.03 1 4.539 1h14.922C21.97 1 24 3.015 24 5.508z"/></svg>',
+  medium: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.54 12a6.8 6.8 0 0 1-6.77 6.82A6.8 6.8 0 0 1 0 12a6.8 6.8 0 0 1 6.77-6.82A6.8 6.8 0 0 1 13.54 12zm7.42 0c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42M24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12z"/></svg>',
+  gitlab: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.955 13.587l-1.342-4.135-2.664-8.189a.455.455 0 0 0-.867 0L16.418 9.45H7.582L4.918 1.263a.455.455 0 0 0-.867 0L1.386 9.45.044 13.587a.924.924 0 0 0 .331 1.023L12 23.054l11.625-8.443a.92.92 0 0 0 .33-1.024"/></svg>'
+};
+function detectSocialIcon(url){
+  const u = url.toLowerCase();
+  const map = {
+    github: 'github', linkedin: 'linkedin', instagram: 'instagram',
+    twitter: 'twitter', 'x.com': 'twitter', facebook: 'facebook',
+    youtube: 'youtube', whatsapp: 'whatsapp', tiktok: 'tiktok',
+    telegram: 'telegram', discord: 'discord', snapchat: 'snapchat',
+    pinterest: 'pinterest', reddit: 'reddit', twitch: 'twitch',
+    threads: 'threads', fiverr: 'fiverr', medium: 'medium', gitlab: 'gitlab'
+  };
+  for(const key in map){ if(u.includes(key)) return map[key]; }
+  return 'link';
+}
+const GENERIC_LINK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 14a3.5 3.5 0 0 0 5 0l3-3a3.5 3.5 0 0 0-5-5l-1 1"/><path d="M14 10a3.5 3.5 0 0 0-5 0l-3 3a3.5 3.5 0 0 0 5 5l1-1"/></svg>';
+
+function renderSocialRow(targetId){
+  const links = (contentCache.social_links||'').split('\n').map(l=>l.trim()).filter(Boolean);
+  const el = document.getElementById(targetId);
+  if(!el) return;
+  el.innerHTML = links.map(url => {
+    const key = detectSocialIcon(url);
+    const icon = SOCIAL_ICONS[key] || GENERIC_LINK_ICON;
+    return `<a class="social-icon" href="${url}" target="_blank" rel="noopener">${icon}</a>`;
+  }).join('');
+}
+
+function renderSkillChips(targetId, skills){
+  const normalized = skills.map(s => typeof s === 'string' ? {name:s, detail:''} : s);
+  document.getElementById(targetId).innerHTML = normalized.map((s,i) => `
+    <div class="skill-chip" data-skill="${targetId}-${i}">
+      <div class="skill-chip-top"><span class="ico"></span>${s.name}<span class="arrow">▸</span></div>
+      <div class="skill-detail">${s.detail || 'No details added yet.'}</div>
+    </div>`).join('');
+  document.querySelectorAll(`[data-skill^="${targetId}-"]`).forEach(chip => {
+    chip.onclick = () => chip.classList.toggle('open');
+  });
+}
+
+function checkProjImagesEmpty(id){
+  const el = document.getElementById(id);
+  if(!el || el.querySelector('.proj-placeholder')) return;
+  if(el.children.length === 0){
+    el.innerHTML = `<div class="proj-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>No preview yet</span></div>`;
+  }
+}
+window.checkProjImagesEmpty = checkProjImagesEmpty; // needed: module scope isn't global, but inline onerror= runs in global scope
+function projectImagesHTML(name){
+  const slug = slugify(name);
+  const candidates = [`images/${slug}.png`, `images/${slug}-2.png`, `images/${slug}-3.png`];
+  const id = 'pimg-' + slug + '-' + Math.random().toString(36).slice(2,7);
+  return `<div class="proj-images" id="${id}">` + candidates.map(src =>
+    `<img src="${src}" loading="lazy" onerror="this.remove(); checkProjImagesEmpty('${id}')">`
+  ).join('') + `</div>`;
+}
+function projectLinkHTML(link){
+  if(!link) return '';
+  return `<a class="btn btn-primary btn-sm proj-link-btn" href="${link}" target="_blank" rel="noopener">View / Use Tool →</a>`;
+}
+
+function renderFooter(){
+  renderSocialRow('footerSocialRow');
+  document.getElementById('footerEmail').textContent = contentCache.contact_email ? '✉ ' + contentCache.contact_email : '';
+  document.getElementById('footerPhone').textContent = contentCache.contact_phone ? '📞 ' + contentCache.contact_phone : '';
+}
+
+function renderHome(){
+  startTypingLoop(document.getElementById('heroRole'), contentCache.hero_role);
+  document.getElementById('profileImg').src = contentCache.profile_image_url || 'profile.jpeg';
+  try{
+    const skills = JSON.parse(contentCache.skills_json);
+    renderSkillChips('skillsGrid', skills);
+  }catch(e){}
+  renderSocialRow('socialRow');
+  renderFooter();
+  document.getElementById('projectsPreview').innerHTML = projectsCache.slice(0,2).map(p => `
+    <div class="card proj-card">
+      <div class="proj-head"><div class="proj-name-wrap"><span class="proj-name">${p.name}</span><span class="proj-tag tag-${p.tag}">${TAG_LABEL[p.tag]||p.tag}</span></div></div>
+      <p class="proj-desc">${p.desc}</p><p class="proj-stack">${p.stack}</p>
+      ${projectImagesHTML(p.name)}
+      ${projectLinkHTML(p.link)}
+    </div>`).join('');
+}
+
+function renderProjectsPage(){
+  document.getElementById('adminAddBar').classList.toggle('hidden', !isAdmin());
+  const el = document.getElementById('projectsList');
+  if(!projectsCache.length){ el.innerHTML = '<div class="empty-note">No projects yet.</div>'; return; }
+  el.innerHTML = `<div style="display:flex; flex-direction:column; gap:14px;">` + projectsCache.map((p,i) => `
+    <div class="card proj-card">
+      <div class="proj-head">
+        <div class="proj-name-wrap"><span class="proj-name">${p.name}</span><span class="proj-tag tag-${p.tag}">${TAG_LABEL[p.tag]||p.tag}</span></div>
+        ${isAdmin() ? `<button class="btn btn-ghost btn-sm" data-edit="${i}">Edit</button>` : ''}
+      </div>
+      <p class="proj-desc">${p.desc}</p><p class="proj-stack">${p.stack}</p>
+      ${projectImagesHTML(p.name)}
+      ${projectLinkHTML(p.link)}
+    </div>`).join('') + `</div>`;
+  document.querySelectorAll('[data-edit]').forEach(btn => { btn.onclick = () => openProjectModal(parseInt(btn.dataset.edit)); });
+}
+
+function renderAboutPage(){
+  document.getElementById('aboutText').textContent = contentCache.about_text;
+  document.getElementById('aboutDetail').textContent = contentCache.about_detail;
+  try{
+    const skills = JSON.parse(contentCache.skills_json);
+    renderSkillChips('skillsGridAbout', skills);
+  }catch(e){}
+  document.getElementById('adminEditAbout').classList.toggle('hidden', !isAdmin());
+  if(isAdmin()){
+    document.getElementById('editAbout').value = contentCache.about_text;
+    document.getElementById('editDetail').value = contentCache.about_detail;
+    document.getElementById('editSkills').value = contentCache.skills_json;
+    document.getElementById('editPhoto').value = contentCache.profile_image_url||'';
+    document.getElementById('editFullName').value = contentCache.cv_full_name||'';
+    document.getElementById('editDOB').value = contentCache.cv_dob||'';
+    document.getElementById('editNationality').value = contentCache.cv_nationality||'';
+    document.getElementById('editObjective').value = contentCache.cv_objective||'';
+    document.getElementById('editEducation').value = contentCache.cv_education||'';
+    document.getElementById('editLanguages').value = contentCache.cv_languages||'';
+    document.getElementById('editWorkExp').value = contentCache.cv_work_experience||'';
+    document.getElementById('editReferences').value = contentCache.cv_references||'';
+  }
+}
+
+function setupContactMethods(){
+  const phone = (contentCache.contact_phone||'').replace(/[^\d+]/g,'');
+  const email = contentCache.contact_email||'';
+  const phoneOptions = document.getElementById('phoneOptions');
+  phoneOptions.innerHTML = `
+    <a href="https://wa.me/${phone.replace('+','')}" target="_blank" rel="noopener">💬 WhatsApp</a>
+    <a href="tel:${phone}">📲 Call</a>
+    <a href="sms:${phone}">✉️ Text Message</a>`;
+  const phoneMethod = document.getElementById('phoneMethod');
+  phoneMethod.onclick = (e) => {
+    e.stopPropagation();
+    phoneOptions.classList.toggle('show');
+  };
+  document.addEventListener('click', (e) => {
+    if(!phoneMethod.contains(e.target)) phoneOptions.classList.remove('show');
+  });
+  document.getElementById('emailMethod').onclick = () => {
+    window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`, '_blank');
+  };
+}
+
+async function renderContactPage(){
+  document.getElementById('rateVal').textContent = contentCache.rate;
+  setupContactMethods();
+  document.getElementById('adminEditSocial').classList.toggle('hidden', !isAdmin());
+  if(isAdmin()){
+    document.getElementById('editPhone').value = contentCache.contact_phone||'';
+    document.getElementById('editEmail').value = contentCache.contact_email||'';
+    document.getElementById('editRate').value = contentCache.rate||'';
+    document.getElementById('editSocial').value = contentCache.social_links||'';
+  }
+  document.getElementById('loggedOutMsg').classList.toggle('hidden', !!currentUser);
+  document.getElementById('clientView').classList.toggle('hidden', !currentUser || isAdmin());
+  document.getElementById('adminView').classList.toggle('hidden', !isAdmin());
+  if(currentUser && !isAdmin()) loadMyRequests();
+  if(isAdmin()) loadAllRequests();
+}
+
+async function renderAll(){
+  renderNav();
+  contentCache = await loadSiteContent();
+  try{ projectsCache = JSON.parse(contentCache.projects_json); }catch(e){ projectsCache = []; }
+  renderHome(); renderProjectsPage(); renderAboutPage(); renderContactPage();
+}
+renderAll();
+
+/* ===== Project add/edit ===== */
+function openProjectModal(index){
+  editingIndex = index;
+  const overlay = document.getElementById('projectOverlay');
+  const deleteBtn = document.getElementById('deleteProjectBtn');
+  if(index === null){
+    document.getElementById('projectModalTitle').textContent = 'Add Project';
+    document.getElementById('pName').value = ''; document.getElementById('pTag').value = 'progress';
+    document.getElementById('pDesc').value = ''; document.getElementById('pStack').value = '';
+    document.getElementById('pLink').value = '';
+    deleteBtn.classList.add('hidden');
+  } else {
+    const p = projectsCache[index];
+    document.getElementById('projectModalTitle').textContent = 'Edit Project';
+    document.getElementById('pName').value = p.name; document.getElementById('pTag').value = p.tag;
+    document.getElementById('pDesc').value = p.desc; document.getElementById('pStack').value = p.stack;
+    document.getElementById('pLink').value = p.link || '';
+    deleteBtn.classList.remove('hidden');
+  }
+  document.getElementById('projectMsg').textContent = '';
+  overlay.classList.add('show');
+}
+document.getElementById('openAddProject').onclick = () => openProjectModal(null);
+document.getElementById('closeProjectModal').onclick = () => document.getElementById('projectOverlay').classList.remove('show');
+
+document.getElementById('saveProjectBtn').onclick = async () => {
+  const msg = document.getElementById('projectMsg');
+  const name = document.getElementById('pName').value.trim();
+  const desc = document.getElementById('pDesc').value.trim();
+  if(!name || !desc){ msg.textContent='Name and description required.'; msg.className='form-msg err'; return; }
+  const newProject = { name, tag: document.getElementById('pTag').value, desc, stack: document.getElementById('pStack').value.trim(), link: document.getElementById('pLink').value.trim() };
+  if(editingIndex === null){ projectsCache.unshift(newProject); } else { projectsCache[editingIndex] = newProject; }
+  const { error } = await supabase.from('site_content').upsert({ key:'projects_json', value: JSON.stringify(projectsCache) });
+  if(error){ msg.textContent = error.message; msg.className='form-msg err'; return; }
+  document.getElementById('projectOverlay').classList.remove('show');
+  renderProjectsPage(); renderHome();
+};
+document.getElementById('deleteProjectBtn').onclick = async () => {
+  if(editingIndex === null) return;
+  projectsCache.splice(editingIndex, 1);
+  await supabase.from('site_content').upsert({ key:'projects_json', value: JSON.stringify(projectsCache) });
+  document.getElementById('projectOverlay').classList.remove('show');
+  renderProjectsPage(); renderHome();
+};
+
+/* ===== About save ===== */
+document.getElementById('saveAboutBtn').onclick = async () => {
+  const msg = document.getElementById('saveAboutMsg');
+  const skillsVal = document.getElementById('editSkills').value;
+  try{ JSON.parse(skillsVal); }catch(e){ msg.textContent='Skills must be valid JSON.'; msg.className='form-msg err'; return; }
+  const updates = [
+    { key:'about_text', value: document.getElementById('editAbout').value },
+    { key:'about_detail', value: document.getElementById('editDetail').value },
+    { key:'skills_json', value: skillsVal },
+    { key:'profile_image_url', value: document.getElementById('editPhoto').value.trim() },
+    { key:'cv_full_name', value: document.getElementById('editFullName').value.trim() },
+    { key:'cv_dob', value: document.getElementById('editDOB').value.trim() },
+    { key:'cv_nationality', value: document.getElementById('editNationality').value.trim() },
+    { key:'cv_objective', value: document.getElementById('editObjective').value },
+    { key:'cv_education', value: document.getElementById('editEducation').value },
+    { key:'cv_languages', value: document.getElementById('editLanguages').value.trim() },
+    { key:'cv_work_experience', value: document.getElementById('editWorkExp').value },
+    { key:'cv_references', value: document.getElementById('editReferences').value.trim() },
+  ];
+  const { error } = await supabase.from('site_content').upsert(updates);
+  if(error){ msg.textContent = error.message; msg.className='form-msg err'; return; }
+  msg.textContent = 'Saved.'; msg.className='form-msg ok';
+  contentCache = await loadSiteContent();
+  renderAboutPage(); renderHome();
+};
+
+/* ===== Contact & Social save (admin) ===== */
+document.getElementById('saveSocialBtn').onclick = async () => {
+  const msg = document.getElementById('saveSocialMsg');
+  const updates = [
+    { key:'contact_phone', value: document.getElementById('editPhone').value.trim() },
+    { key:'contact_email', value: document.getElementById('editEmail').value.trim() },
+    { key:'rate', value: document.getElementById('editRate').value.trim() },
+    { key:'social_links', value: document.getElementById('editSocial').value.trim() },
+  ];
+  const { error } = await supabase.from('site_content').upsert(updates);
+  if(error){ msg.textContent = error.message; msg.className='form-msg err'; return; }
+  msg.textContent = 'Saved.'; msg.className='form-msg ok';
+  contentCache = await loadSiteContent();
+  renderHome(); renderContactPage();
+};
+
+/* ===== Requests (contact page) ===== */
+document.getElementById('submitReqBtn').onclick = async () => {
+  const message = document.getElementById('reqMessage').value.trim();
+  const budget = document.getElementById('reqBudget').value.trim();
+  const msg = document.getElementById('reqMsg');
+  if(!message){ msg.textContent='Please describe what you need.'; msg.className='form-msg err'; return; }
+  const { error } = await supabase.from('requests').insert({
+    user_id: currentUser.id, name: currentUser.user_metadata?.full_name || currentUser.email, email: currentUser.email, message, budget
+  });
+  if(error){ msg.textContent = error.message; msg.className='form-msg err'; return; }
+  msg.textContent = 'Request submitted!'; msg.className='form-msg ok';
+  document.getElementById('reqMessage').value=''; document.getElementById('reqBudget').value='';
+  loadMyRequests();
+};
+async function loadMyRequests(){
+  const { data, error } = await supabase.from('requests').select('*').order('created_at',{ascending:false});
+  const el = document.getElementById('myReqsList');
+  if(error || !data || data.length===0){ el.innerHTML = '<div class="empty-note">No requests yet.</div>'; return; }
+  el.innerHTML = data.map(r => `
+    <div class="req-item">
+      <div class="req-top"><strong>${r.budget ? r.budget : 'No budget given'}</strong><span class="status-badge status-${r.status}">${r.status}</span></div>
+      <p class="req-msg">${r.message}</p><p class="req-meta">${new Date(r.created_at).toLocaleString()}</p>
+      ${r.admin_reply ? `<div class="admin-reply-box"><strong>Reply from RAU.dev</strong>${r.admin_reply}</div>` : ''}
+    </div>`).join('');
+}
+async function loadAllRequests(){
+  const { data, error } = await supabase.from('requests').select('*').order('created_at',{ascending:false});
+  const el = document.getElementById('allReqsList');
+  if(error || !data || data.length===0){ el.innerHTML = '<div class="empty-note">No requests yet.</div>'; return; }
+  el.innerHTML = data.map(r => `
+    <div class="req-item">
+      <div class="req-top"><strong>${r.name}</strong>
+        <select class="status-select" data-id="${r.id}">
+          <option value="pending" ${r.status==='pending'?'selected':''}>Pending</option>
+          <option value="accepted" ${r.status==='accepted'?'selected':''}>Accepted</option>
+          <option value="declined" ${r.status==='declined'?'selected':''}>Declined</option>
+        </select>
+      </div>
+      <p class="req-meta">${r.email} ${r.budget ? '· '+r.budget : ''}</p>
+      <p class="req-msg">${r.message}</p><p class="req-meta">${new Date(r.created_at).toLocaleString()}</p>
+      ${r.admin_reply ? `<div class="admin-reply-box"><strong>Your reply</strong>${r.admin_reply}</div>` : ''}
+      <div class="reply-row">
+        <input type="text" class="reply-input" data-id="${r.id}" placeholder="${r.admin_reply ? 'Send a new reply…' : 'e.g. Contact me on WhatsApp'}" value="">
+        <button class="btn btn-ghost btn-sm reply-send" data-id="${r.id}">Send Reply</button>
+      </div>
+    </div>`).join('');
+  document.querySelectorAll('.status-select').forEach(sel => {
+    sel.onchange = async () => { await supabase.from('requests').update({status:sel.value}).eq('id', sel.dataset.id); };
+  });
+  document.querySelectorAll('.reply-send').forEach(btn => {
+    btn.onclick = async () => {
+      const id = btn.dataset.id;
+      const input = document.querySelector(`.reply-input[data-id="${id}"]`);
+      const text = input.value.trim();
+      if(!text) return;
+      btn.disabled = true; btn.textContent = 'Sending…';
+      const { error } = await supabase.from('requests').update({ admin_reply: text }).eq('id', id);
+      if(error){ btn.textContent = 'Failed'; btn.disabled = false; return; }
+      loadAllRequests();
+    };
+  });
+}
+</script>
+</body>
+</html>
