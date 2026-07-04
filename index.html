@@ -16,9 +16,20 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
 
-  <script src="https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- ═══════════════════════════════════════
+       IMPORTMAP FOR THREE.JS (must be in <head> before module scripts)
+  ═══════════════════════════════════════ -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.165.0/build/three.module.js",
+      "three/": "https://unpkg.com/three@0.165.0/"
+    }
+  }
+  </script>
 
   <style>
     /* ===================================================
@@ -1309,18 +1320,6 @@
       <p>&copy; 2024 Rana Ahmad Umar &mdash; <a href="#home">RAU.dev</a> &nbsp;&middot;&nbsp; Built by hand &nbsp;&middot;&nbsp; <a href="https://github.com/RAU-dev" target="_blank" rel="noopener">GitHub</a></p>
     </footer>
   </div><!-- /#app -->
-
-  <!-- ═══════════════════════════════════════
-       IMPORTMAP FOR THREE.JS (fixes GitHub Pages module loading)
-  ═══════════════════════════════════════ -->
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://unpkg.com/three@0.165.0/build/three.module.js",
-      "three/": "https://unpkg.com/three@0.165.0/"
-    }
-  }
-  </script>
 
   <!-- ═══════════════════════════════════════
        AUTH MODAL
