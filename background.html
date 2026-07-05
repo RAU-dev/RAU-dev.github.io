@@ -85,6 +85,12 @@ const EARTH_URL   = './Earth.glb';
 const OBJECT_URL  = './Object.glb';
 
 // ══════════════════════════════════════════
+// MOBILE DETECTION — lighter settings + simpler fade-based motion on phones,
+// since the full parallax/lerp scene is too GPU-heavy for most mobile chips
+// ══════════════════════════════════════════
+const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth <= 768;
+
+// ══════════════════════════════════════════
 // SCENE SETUP
 // ══════════════════════════════════════════
 const canvas = document.getElementById('bg-canvas');
@@ -92,9 +98,9 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 0, 5); // closer camera = models read bigger on screen
 
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: !isMobile, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio, 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.1;
@@ -107,15 +113,18 @@ const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
 keyLight.position.set(5, 3, 5);
 scene.add(keyLight);
 
-const rimLight = new THREE.DirectionalLight(0x4fd1ff, 1.2);
-rimLight.position.set(-5, -2, -5);
-scene.add(rimLight);
+// Rim light skipped on mobile — one less light to compute per pixel
+if (!isMobile) {
+  const rimLight = new THREE.DirectionalLight(0x4fd1ff, 1.2);
+  rimLight.position.set(-5, -2, -5);
+  scene.add(rimLight);
+}
 
 // ══════════════════════════════════════════
 // STARFIELD — sits far behind Earth/Object, always visible, twinkles + parallax on mouse
 // ══════════════════════════════════════════
 const starGeometry = new THREE.BufferGeometry();
-const starCount = 8000;
+const starCount = isMobile ? 2000 : 8000;
 const starPositions = new Float32Array(starCount * 3);
 const starSizes = new Float32Array(starCount);
 const starRandoms = new Float32Array(starCount);
@@ -312,14 +321,22 @@ if (standalone) {
 
 // ══════════════════════════════════════════
 // KEYFRAME POSITIONS
-// Earth: starts centered/huge (0) → moves back/fades/shrinks by end (1)
-// Object: starts hidden behind/below (0) → comes forward to full size by end (1)
+// Desktop: full parallax — Earth moves back/shrinks/fades, Object drifts forward
+// Mobile: simple fade in/out in place — far cheaper to render, avoids the "chopped" look
 // ══════════════════════════════════════════
-const earthStart  = { pos: new THREE.Vector3(0, 0, 0),     scale: 1,    opacity: 1 };
-const earthEnd    = { pos: new THREE.Vector3(-3, 1.5, -6), scale: 0.35, opacity: 0 };
+const earthStart  = isMobile
+  ? { pos: new THREE.Vector3(0, 0, 0), scale: 1,    opacity: 1 }
+  : { pos: new THREE.Vector3(0, 0, 0), scale: 1,    opacity: 1 };
+const earthEnd    = isMobile
+  ? { pos: new THREE.Vector3(0, 0, 0), scale: 0.9,  opacity: 0 }   // stays put, just fades + shrinks slightly
+  : { pos: new THREE.Vector3(-3, 1.5, -6), scale: 0.35, opacity: 0 };
 
-const objectStart = { pos: new THREE.Vector3(2, -1, -8),   scale: 0.15, opacity: 0 };
-const objectEnd   = { pos: new THREE.Vector3(0, 0, 2),     scale: 1,    opacity: 1 };
+const objectStart = isMobile
+  ? { pos: new THREE.Vector3(0, 0, 0), scale: 0.9,  opacity: 0 }   // stays put, just fades in
+  : { pos: new THREE.Vector3(2, -1, -8),   scale: 0.15, opacity: 0 };
+const objectEnd   = isMobile
+  ? { pos: new THREE.Vector3(0, 0, 0), scale: 1,    opacity: 1 }
+  : { pos: new THREE.Vector3(0, 0, 2),     scale: 1,    opacity: 1 };
 
 function lerpVec3(a, b, t, out) {
   out.x = a.x + (b.x - a.x) * t;
@@ -367,12 +384,14 @@ function animate() {
   starMaterial.uniforms.uMouse.value.y += (starMouse.y - starMaterial.uniforms.uMouse.value.y) * 0.1;
 
   // Smooth the incoming scroll value so it doesn't feel jumpy
-  progress += (targetProgress - progress) * 0.08;
+  // (mobile uses a snappier smoothing factor so the fade tracks touch-scroll closely)
+  progress += (targetProgress - progress) * (isMobile ? 0.15 : 0.08);
 
   // Idle rotation — ALWAYS spinning, independent of scroll, so it never looks frozen
-  earthGroup.rotation.y += delta * 0.15;
-  objectGroup.rotation.y += delta * 0.25;
-  objectGroup.rotation.x += delta * 0.05;
+  const rotSpeed = isMobile ? 0.6 : 1; // slightly calmer on mobile, cheaper to render smoothly
+  earthGroup.rotation.y += delta * 0.15 * rotSpeed;
+  objectGroup.rotation.y += delta * 0.25 * rotSpeed;
+  objectGroup.rotation.x += delta * 0.05 * rotSpeed;
 
   if (earthModel) {
     lerpVec3(earthStart.pos, earthEnd.pos, progress, tmpPos);
