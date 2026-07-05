@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Scroll Background</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    background: #000000;
+    overflow: hidden;
+  }
+  #bg-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    display: block;
+  }
+  #loader {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 10;
+    font-family: monospace;
+    color: #9ca3af;
+    transition: opacity 0.6s ease;
+  }
+  #loader-bar-track {
+    width: 220px;
+    height: 3px;
+    background: rgba(255,255,255,0.15);
+    margin-top: 14px;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  #loader-bar-fill {
+    width: 0%;
+    height: 100%;
+    background: #00b4c8;
+    transition: width 0.15s ease;
+  }
+  #loader-pct {
+    margin-top: 10px;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div>Loading 3D scene…</div>
+  <div id="loader-bar-track"><div id="loader-bar-fill"></div></div>
+  <div id="loader-pct">0%</div>
+</div>
+
+<canvas id="bg-canvas"></canvas>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+
+// ══════════════════════════════════════════
+// LOCAL MODEL PATHS — exact filenames, case-sensitive on GitHub Pages
+// Earth.glb and Objects.glb must sit in the SAME folder as this file
+// ══════════════════════════════════════════
+const EARTH_URL   = './Earth.glb';
+const OBJECT_URL  = './Object.glb';
+
+// ══════════════════════════════════════════
+// MOBILE DETECTION — lighter settings + simpler fade-based motion on phones,
+// since the full parallax/lerp scene is too GPU-heavy for most mobile chips
+// ══════════════════════════════════════════
+const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth <= 768;
+
+// ══════════════════════════════════════════
+// SCENE SETUP
+// ══════════════════════════════════════════
+const canvas = document.getElementById('bg-canvas');
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(0, 0, 5); // closer camera = models read bigger on screen
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: !isMobile, alpha: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+
+// Lighting — this is what makes a GLB actually look "alive" instead of flat/dark
+const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+scene.add(ambient);
+
+const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
+keyLight.position.set(5, 3, 5);
+scene.add(keyLight);
+
+// Rim light skipped on mobile — one less light to compute per pixel
+if (!isMobile) {
+  const rimLight = new THREE.DirectionalLight(0x4fd1ff, 1.2);
+  rimLight.position.set(-5, -2, -5);
+  scene.add(rimLight);
+}
+
+// ══════════════════════════════════════════
+// STARFIELD — sits far behind Earth/Object, always visible, twinkles + parallax on mouse
+// ══════════════════════════════════════════
+const starGeometry = new THREE.BufferGeometry();
+const starCount = isMobile ? 1000 : 8000;
+const starPositions = new Float32Array(starCount * 3);
+const starSizes = new Float32Array(starCount);
+const starRandoms = new Float32Array(starCount);
+
+for (let i = 0; i < starCount; i++) {
+  const radius = 50 + Math.random() * 150;
+  const theta = Math.random() * Math.PI * 2;
+  const phi = Math.acos(2 * Math.random() - 1);
+
+  starPositions[i * 3]     = radius * Math.sin(phi) * Math.cos(theta);
+  starPositions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+  starPositions[i * 3 + 2] = radius * Math.cos(phi);
+
+  starSizes[i] = Math.random() * 1.9 + 0.7;
+  starRandoms[i] = Math.random();
+}
+
+starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+starGeometry.setAttribute('size', new THREE.BufferAttribute(starSizes, 1));
+starGeometry.setAttribute('aRandom', new THREE.BufferAttribute(starRandoms, 1));
+
+const starMaterial = new THREE.ShaderMaterial({
+  uniforms: {
+    uTime: { value: 0 },
+    uMouse: { value: new THREE.Vector2(10, 10) },
+    uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) }
+  },
+  vertexShader: `
+    uniform vec2 uMouse;
+    uniform float uTime;
+    uniform float uPixelRatio;
+    attribute float size;
+    attribute float aRandom;
+    varying float vGlow;
+    varying float vRandom;
+
+    void main() {
+      vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+      gl_Position = projectionMatrix * mvPosition;
+
+      vec2 screenPos = gl_Position.xy / gl_Position.w;
+      float dist = distance(screenPos, uMouse);
+
+      float proximity = 1.0 - smoothstep(0.0, 0.15, dist);
+      vGlow = proximity;
+      vRandom = aRandom;
+
+      float twinkle = sin(uTime * 2.0 + aRandom * 10.0) * 0.5 + 0.5;
+
+      float finalSize = size * (1.0 + proximity * 1.5) * (0.8 + twinkle * 0.4);
+      gl_PointSize = finalSize * uPixelRatio * (300.0 / -mvPosition.z);
+    }
+  `,
+  fragmentShader: `
+    varying float vGlow;
+    varying float vRandom;
+
+    void main() {
+      vec2 uv = gl_PointCoord - 0.5;
+      float dist = length(uv);
+
+      float core = smoothstep(0.1, 0.0, dist);
+
+      float spikeX = smoothstep(0.5, 0.0, abs(uv.y) * 8.0) * smoothstep(0.5, 0.0, abs(uv.x));
+      float spikeY = smoothstep(0.5, 0.0, abs(uv.x) * 8.0) * smoothstep(0.5, 0.0, abs(uv.y));
+      float spikes = max(spikeX, spikeY) * 0.5;
+
+      float strength = core + spikes;
+      strength += vGlow * (core * 2.0 + spikes * 4.0);
+
+      if (strength < 0.01) discard;
+
+      vec3 colorWhite = vec3(1.0);
+      vec3 colorBlue = vec3(0.7, 0.85, 1.0);
+      vec3 colorYellow = vec3(1.0, 0.95, 0.8);
+
+      vec3 starColor = mix(colorWhite, colorBlue, vRandom);
+      starColor = mix(starColor, colorYellow, step(0.8, vRandom));
+
+      gl_FragColor = vec4(starColor, strength);
+    }
+  `,
+  transparent: true,
+  depthWrite: false,
+  blending: THREE.AdditiveBlending
+});
+
+const stars = new THREE.Points(starGeometry, starMaterial);
+scene.add(stars);
+
+const starMouse = { x: 10, y: 10 };
+window.addEventListener('mousemove', (e) => {
+  starMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+  starMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+});
+window.addEventListener('touchmove', (e) => {
+  if (e.touches.length > 0) {
+    starMouse.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
+    starMouse.y = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
+  }
+}, { passive: true });
+
+// ══════════════════════════════════════════
+// LOADING (with a safety timeout so a broken/missing file can't trap visitors forever)
+// ══════════════════════════════════════════
+const loaderEl = document.getElementById('loader');
+const barFill = document.getElementById('loader-bar-fill');
+const pctText = document.getElementById('loader-pct');
+let loaderDone = false;
+
+function hideLoader() {
+  if (loaderDone) return;
+  loaderDone = true;
+  loaderEl.style.opacity = '0';
+  setTimeout(() => loaderEl.style.display = 'none', 650);
+}
+
+const manager = new THREE.LoadingManager();
+manager.onProgress = (url, loaded, total) => {
+  const pct = Math.round((loaded / total) * 100);
+  barFill.style.width = pct + '%';
+  pctText.textContent = pct + '%';
+};
+manager.onLoad = hideLoader;
+manager.onError = (url) => {
+  pctText.textContent = 'Failed to load: ' + url + ' (check filename/case)';
+  console.error('GLB load error:', url);
+};
+
+// Never let visitors get stuck on the loading screen — hide it after 12s regardless
+setTimeout(hideLoader, 12000);
+
+const gltfLoader = new GLTFLoader(manager);
+const dracoLoader = new DRACOLoader();
+dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+gltfLoader.setDRACOLoader(dracoLoader);
+gltfLoader.setMeshoptDecoder(MeshoptDecoder);
+
+// Groups let us move/scale/fade each model independently of its own mesh pivot
+const earthGroup = new THREE.Group();
+const objectGroup = new THREE.Group();
+scene.add(earthGroup, objectGroup);
+
+let earthModel = null;
+let objectModel = null;
+
+function normalizeAndCenter(root, targetSize) {
+  const box = new THREE.Box3().setFromObject(root);
+  const size = new THREE.Vector3();
+  box.getSize(size);
+  const center = new THREE.Vector3();
+  box.getCenter(center);
+  root.position.sub(center); // center pivot
+  const maxDim = Math.max(size.x, size.y, size.z) || 1;
+  const scale = targetSize / maxDim;
+  root.scale.setScalar(scale);
+}
+
+gltfLoader.load(EARTH_URL, (gltf) => {
+  earthModel = gltf.scene;
+  normalizeAndCenter(earthModel, 6.5); // bigger — fills ~70-80% of viewport at camera z=5
+  earthGroup.add(earthModel);
+}, undefined, (err) => console.error('Earth load error:', err));
+
+gltfLoader.load(OBJECT_URL, (gltf) => {
+  objectModel = gltf.scene;
+  normalizeAndCenter(objectModel, 5.0);
+  objectGroup.add(objectModel);
+}, undefined, (err) => console.error('Object load error:', err));
+
+// ══════════════════════════════════════════
+// SCROLL PROGRESS — received from parent page via postMessage
+// (background.html has no scrollbar of its own; index.html sends 0 → 1)
+// ══════════════════════════════════════════
+let targetProgress = 0; // raw incoming value
+let progress = 0;       // smoothed value used for animation
+let scrollVelocity = 0; // how fast the user is currently scrolling — drives extra Object spin
+let lastMsgProgress = 0;
+let lastMsgTime = performance.now();
+
+window.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'scroll-progress') {
+    const incoming = Math.min(1, Math.max(0, e.data.progress));
+    const now = performance.now();
+    const dt = Math.max(now - lastMsgTime, 1); // ms, avoid divide-by-zero
+    const rawVelocity = Math.abs(incoming - lastMsgProgress) / dt; // progress-units per ms
+    scrollVelocity = Math.min(scrollVelocity + rawVelocity * 40, 3); // accumulate, cap so it can't spiral
+    lastMsgProgress = incoming;
+    lastMsgTime = now;
+    targetProgress = incoming;
+  }
+});
+
+// Fallback: if opened directly (not in an iframe), use this page's own scroll
+// so you can still test it standalone by adding a tall spacer div.
+let standalone = true;
+try { standalone = window.self === window.top; } catch (e) { standalone = true; }
+if (standalone) {
+  window.addEventListener('scroll', () => {
+    const max = document.body.scrollHeight - window.innerHeight;
+    const incoming = max > 0 ? window.scrollY / max : 0;
+    const now = performance.now();
+    const dt = Math.max(now - lastMsgTime, 1);
+    const rawVelocity = Math.abs(incoming - lastMsgProgress) / dt;
+    scrollVelocity = Math.min(scrollVelocity + rawVelocity * 40, 3);
+    lastMsgProgress = incoming;
+    lastMsgTime = now;
+    targetProgress = incoming;
+  });
+}
+
+// ══════════════════════════════════════════
+// KEYFRAME POSITIONS
+// Desktop: full parallax — Earth moves back/shrinks/fades, Object drifts forward
+// Mobile: simple fade in/out in place — far cheaper to render, avoids the "chopped" look
+// ══════════════════════════════════════════
+const earthStart  = isMobile
+  ? { pos: new THREE.Vector3(0, 0, 0), scale: 1,    opacity: 1 }
+  : { pos: new THREE.Vector3(0, 0, 0), scale: 1,    opacity: 1 };
+const earthEnd    = isMobile
+  ? { pos: new THREE.Vector3(0, 0, 0), scale: 0.9,  opacity: 0 }   // stays put, just fades + shrinks slightly
+  : { pos: new THREE.Vector3(-3, 1.5, -6), scale: 0.35, opacity: 0 };
+
+const objectStart = isMobile
+  ? { pos: new THREE.Vector3(0, 0, 0), scale: 0.9,  opacity: 0 }   // stays put, just fades in
+  : { pos: new THREE.Vector3(2, -1, -8),   scale: 0.15, opacity: 0 };
+const objectEnd   = isMobile
+  ? { pos: new THREE.Vector3(0, 0, 0), scale: 1,    opacity: 1 }
+  : { pos: new THREE.Vector3(0, 0, 2),     scale: 1,    opacity: 1 };
+
+function lerpVec3(a, b, t, out) {
+  out.x = a.x + (b.x - a.x) * t;
+  out.y = a.y + (b.y - a.y) * t;
+  out.z = a.z + (b.z - a.z) * t;
+  return out;
+}
+
+function setGroupOpacity(group, value) {
+  group.traverse((child) => {
+    if (child.isMesh && child.material) {
+      const mats = Array.isArray(child.material) ? child.material : [child.material];
+      mats.forEach((m) => {
+        m.transparent = true;
+        m.opacity = value;
+      });
+    }
+  });
+}
+
+// ══════════════════════════════════════════
+// RESIZE
+// ══════════════════════════════════════════
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  starMaterial.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2);
+});
+
+// ══════════════════════════════════════════
+// ANIMATION LOOP
+// ══════════════════════════════════════════
+const clock = new THREE.Clock();
+const tmpPos = new THREE.Vector3();
+
+function animate() {
+  requestAnimationFrame(animate);
+  const delta = clock.getDelta();
+  const elapsed = clock.getElapsedTime();
+
+  // Update star twinkle + mouse-glow uniforms
+  starMaterial.uniforms.uTime.value = elapsed;
+  starMaterial.uniforms.uMouse.value.x += (starMouse.x - starMaterial.uniforms.uMouse.value.x) * 0.1;
+  starMaterial.uniforms.uMouse.value.y += (starMouse.y - starMaterial.uniforms.uMouse.value.y) * 0.1;
+
+  // Smooth the incoming scroll value so it doesn't feel jumpy
+  // (mobile uses a snappier smoothing factor so the fade tracks touch-scroll closely)
+  progress += (targetProgress - progress) * (isMobile ? 0.15 : 0.08);
+
+  // Idle rotation — ALWAYS spinning, independent of scroll, so it never looks frozen.
+  // Earth keeps its simple constant spin. Object spins faster the faster you scroll,
+  // then settles back to its normal idle speed once scrolling stops.
+  const rotSpeed = isMobile ? 0.6 : 1; // slightly calmer on mobile, cheaper to render smoothly
+  earthGroup.rotation.y += delta * 0.15 * rotSpeed;
+
+  scrollVelocity *= 0.94; // decay back toward 0 when not actively scrolling
+  const objectSpin = (0.25 + scrollVelocity) * rotSpeed;
+  objectGroup.rotation.y += delta * objectSpin;
+  objectGroup.rotation.x += delta * 0.05 * rotSpeed;
+
+  if (earthModel) {
+    lerpVec3(earthStart.pos, earthEnd.pos, progress, tmpPos);
+    earthGroup.position.copy(tmpPos);
+    const s = earthStart.scale + (earthEnd.scale - earthStart.scale) * progress;
+    earthGroup.scale.setScalar(s);
+    setGroupOpacity(earthGroup, earthStart.opacity + (earthEnd.opacity - earthStart.opacity) * progress);
+  }
+
+  if (objectModel) {
+    lerpVec3(objectStart.pos, objectEnd.pos, progress, tmpPos);
+    objectGroup.position.copy(tmpPos);
+    const s = objectStart.scale + (objectEnd.scale - objectStart.scale) * progress;
+    objectGroup.scale.setScalar(s);
+    setGroupOpacity(objectGroup, objectStart.opacity + (objectEnd.opacity - objectStart.opacity) * progress);
+  }
+
+  renderer.render(scene, camera);
+}
+
+animate();
+</script>
+</body>
+</html>
