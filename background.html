@@ -58,7 +58,7 @@
 
         // --- 2. Star Field (same twinkle/shine mechanism as original — untouched) ---
         const starGeometry = new THREE.BufferGeometry();
-        const starCount = 2000; // kept exactly as requested — same quantity, not changed
+        const starCount = 1500; // kept exactly as requested — same quantity, not changed
         const positions = new Float32Array(starCount * 3);
         const sizes = new Float32Array(starCount);
         const randoms = new Float32Array(starCount);
@@ -72,7 +72,7 @@
             positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
             positions[i * 3 + 2] = radius * Math.cos(phi);
 
-            // Slightly bigger than original (was 0.5–2.0) so 2000 stars still fill the space well
+            // Slightly bigger than original (was 0.5–2.0) so 1500 stars still fill the space well
             sizes[i] = Math.random() * 4.0 + 3.0;
             randoms[i] = Math.random();
         }
